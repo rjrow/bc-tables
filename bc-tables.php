@@ -56,7 +56,9 @@ function createArray($rows, $string_key){
 	}
 	return($new_array);
 }
-echo '<pre>' . !isset($_POST['table_type']) ? "NOT SET" : $_POST['table_type'] . '</pre>';
+echo '<pre>' . !isset($_POST) ? "NOT SET" : print_r($_POST) . '</pre>';
+foreach ($_POST as $key => $value)
+    echo $key.'='.$value.'<br />';
 // Generate job growth tables shortcode function
 function jg_table_gen($atts){
 	
