@@ -297,13 +297,13 @@ function jg_table_gen($atts){
 		?>
 		<form method="post" class="bc-table">
 			<div class="row">
-				<div class="col-xs-12 col-md-4">;
+				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
 				</div>
 				<div class="col-xs-12 col-md-3">
 					<?php populateDropDownControls('Month', $Month_array); ?>
 				</div>
-				<div class="col-xs-12 col-md-3">;
+				<div class="col-xs-12 col-md-3">
 					<?php populateDropDownControls('Year', $Year_array); ?>
 				</div>
 				<div class="col-xs-12 col-md-2">
