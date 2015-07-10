@@ -31,6 +31,7 @@ function get_industry_list_by_area(){
 add_action( 'wp_ajax_my_action', 'get_industry_list_by_area' );
 add_action('wp_ajax_nopriv_my_action', 'get_industry_list_by_area' );
 
+
 function tablePopulate($rows){
 	foreach ( $rows as $rows )
 	{
@@ -307,7 +308,7 @@ function jg_table_gen($atts){
 					<?php populateDropDownControls('Year', $Year_array); ?>
 				</div>
 				<div class="col-xs-12 col-md-2">
-					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
+					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
 				</div>
 			</div>
 		</form>
@@ -415,6 +416,9 @@ function jg_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
+add_action( 'wp_ajax_get_jg_table_gen', 'jg_table_gen' );
+add_action('wp_ajax_nopriv_get_jg_table_gen', 'jg_table_gen' );
+
 
 //Generate wbc tables shortcode function
 function bc_table_gen($atts){
@@ -629,6 +633,8 @@ function bc_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
+add_action( 'wp_ajax_get_bc_table_gen', 'bc_table_gen' );
+add_action('wp_ajax_nopriv_get_bc_table_gen', 'bc_table_gen' );
 
 function gpbc_table_gen($atts){
 	ob_start();
@@ -811,6 +817,8 @@ function gpbc_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
+add_action( 'wp_ajax_get_gpbc_table_gen', 'gpbc_table_gen' );
+add_action('wp_ajax_nopriv_get_gpbc_table_gen', 'gpbc_table_gen' );
 
 function populateDropDownControls($name, $dropdown_query){
 	$dropdown_complete = '<select name="'.$name.'" id = "'.$name.'" class="form-control">';
