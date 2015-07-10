@@ -180,7 +180,7 @@ function jg_table_gen($atts){
 							AND Month = "'.$Month.'";');
 
 		?>
-		<form method="post" class="bc-table">
+		<form method="post" class="bc-table" data-type="jg_table_gen">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php echo populateDropDownControls('job_sector', $sector_array); ?>
@@ -209,7 +209,7 @@ function jg_table_gen($atts){
 
 
 		?>
-		<form method="post" class="bc-table">
+		<form method="post" class="bc-table" data-type="jg_table_gen">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -239,7 +239,7 @@ function jg_table_gen($atts){
 						AND Month = "'.$Month.'" ORDER BY '.$col_rank.';');
 
 		?>
-		<form method="post" class="bc-table">
+		<form method="post" class="bc-table" data-type="jg_table_gen">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -267,7 +267,7 @@ function jg_table_gen($atts){
 								AND Year = "'.$Year.'"
 								AND Month = "'.$Month.'";');
 								?>
-		<form method="post" class="bc-table">
+		<form method="post" class="bc-table" data-type="jg_table_gen">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -296,7 +296,7 @@ function jg_table_gen($atts){
 								AND Month = "'.$Month.'";');
 
 		?>
-		<form method="post" class="bc-table">
+		<form method="post" class="bc-table" data-type="jg_table_gen">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -324,7 +324,7 @@ function jg_table_gen($atts){
 						AND '.$col_state_name.' = "'.$area.'"
 						AND Month = "'.$Month.'" LIMIT 10000 OFFSET 2;');
 			?>
-				<form method="post" class="bc-table">
+				<form method="post" class="bc-table" data-type="jg_table_gen">
 					<div class="row"><div class="col-xs-12 col-md-4"><select name = "arealist" class="form-control">
 			<?php
 
@@ -548,7 +548,7 @@ function bc_table_gen($atts){
 				CASE WHEN Organization = "Old Consensus" THEN 0 END,
 				Organization ASC;');
 
-		echo '<table class= "table table-striped table-hover sortable">
+		echo '<table class="table table-striped table-hover sortable">
 			  <caption> '.$curr_year.' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
 			  <thead><tr><th></th>
@@ -569,7 +569,7 @@ function bc_table_gen($atts){
 				Organization ASC;');
 
 		echo '
-			  <table class= "table table-striped table-hover sortable">
+			  <table class="table table-striped table-hover sortable">
 			  <caption> '.$next_year.' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
 			  <thead><tr><th></th>
@@ -615,7 +615,7 @@ function bc_table_gen($atts){
 						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 	 					Organization ASC;');
 
-		echo '<table class= "table table-striped table-hover sortable">
+		echo '<table class="table table-striped table-hover sortable">
 		      <col span = "5" />
 			  <caption> '.$next_year.' Forecasts Annual Percentage Change</caption>
 			  <thead><tr><th></th>
