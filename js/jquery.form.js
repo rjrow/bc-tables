@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  if ($('.navbar-form')) {
+  if ($('.bc-table')) {
 
     var area_is_set = false;
     var area_set = document.getElementsByName('arealist')[0].value;
@@ -10,7 +10,7 @@ $(document).ready(function() {
       get_industry_list(document.getElementsByName("arealist"), area_is_set);
     }
 
-    $('.navbar-form select[name=arealist]').change(function() {
+    $('.bc-table select[name=arealist]').change(function() {
       get_industry_list(this, true);
     });
 
@@ -20,13 +20,15 @@ $(document).ready(function() {
 
     var selected_area;
     var area_set = $(select_option).val();
+    var selectIndustry = $('#select_industry');
+
     if(area_set.includes("MSAs")){
       area_set = area_set.match(/[^[\]]+(?=])/g);
     }
     area_set = String(area_set);
     console.log('area_set: ' + area_set);
     selected_area = area_set;
-    $('#select_industry').html('<option>Loading</option>');
+    selectIndustry.html('<option>Loading</option>');
 
     $.ajax({
       dataType: 'json',
@@ -36,12 +38,12 @@ $(document).ready(function() {
         'area': selected_area
       },
       success: function(data) {
-        var selectIndustry = $('#select_industry');
+       
         selectIndustry.html('');
         $.each(data, function(index, value){
           selectIndustry.append('<option>' + data[index] + '</option>');
         });
-        $('#select_industry').show();
+        selectIndustry.show();
       },
       error: function(errorThrown) {
         alert('error');
