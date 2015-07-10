@@ -312,7 +312,7 @@ function jg_table_gen($atts){
 				</div>
 			</div>
 		</form>
-		<?php 
+		<?php
 	}
 
 
@@ -812,6 +812,25 @@ function gpbc_table_gen($atts){
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
 	   tablePopulate($rows);
+	}
+
+
+	if($table_type == "historical")
+	{
+		$rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
+
+		echo '<table class="table table-striped table-hover sortable">
+			  <col span="6" />
+			  <thead><tr><th></th>
+			  <th>Population (thousands)</th>
+			  <th>Personal Income ($ millions)</th>
+			  <th>Retail Sales ($ millions)</th>
+			  <th>Wage & Salary Employment (thousands)</th>
+			  <th>Manufacturing Employment (thousands)</th>
+			  <th>Construction Employment (thousands)</th>
+			  <th>Unemployment Rate</th>';
+
+		tablePopulate($rows);
 	}
 
 	$output = ob_get_clean();
