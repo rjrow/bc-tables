@@ -22,12 +22,13 @@ $(document).ready(function() {
 
   }
   function get_new_table(table, tableType) {
+    console.log(tableType);
     $.ajax({
       url: ajaxurl,
-      data: {
-        'action': tableType,
-        $(table).serialize(),
-      }
+      data:{
+        "action": 'get_jg_table_gen',
+        "data": $(table).serialize()
+      },
       success: function(data) {
         console.log(data);
       },
