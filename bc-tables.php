@@ -28,7 +28,6 @@ function get_industry_list_by_area(){
 		}
 		die();
 }
-
 add_action( 'wp_ajax_my_action', 'get_industry_list_by_area' );
 add_action('wp_ajax_nopriv_my_action', 'get_industry_list_by_area' );
 
@@ -179,13 +178,18 @@ function jg_table_gen($atts){
 							AND Year = "'.$Year.'"
 							AND Month = "'.$Month.'";');
 
-		echo '<form method="post" class="navbar-form">';
-		echo '<div class="form-group">';
-		populateDropDownControls('job_sector', $sector_array);
-		echo '<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />';
-		echo '</div></form>';
-
-
+		?>
+		<form method="post" class="bc-table">
+			<div class="row">
+				<div class="col-xs-12 col-md-4">
+					<?php echo populateDropDownControls('job_sector', $sector_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-4">
+					<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
+				</div>
+			</div>
+		</form>
+		<?php
 	}
 
 
@@ -203,13 +207,24 @@ function jg_table_gen($atts){
 							AND Month = "'.$Month.'";');
 
 
-		echo '<form method="post" class="navbar-form">';
-		echo '<div class="form-group">';
-		populateDropDownControls('job_sector', $sector_array);
-		populateDropDownControls('Month', $Month_array);
-		populateDropDownControls('Year', $Year_array);
-		echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
-		echo '</div></form>';
+		?>
+		<form method="post" class="bc-table">
+			<div class="row">
+				<div class="col-xs-12 col-md-4">
+					<?php populateDropDownControls('job_sector', $sector_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-4">
+					<?php populateDropDownControls('Month', $Month_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<?php populateDropDownControls('Year', $Year_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+				</div>
+			</div>
+		</form>
+		<?php
 	}
 
 
@@ -222,13 +237,24 @@ function jg_table_gen($atts){
 						AND Year = "'.$Year.'"
 						AND Month = "'.$Month.'" ORDER BY '.$col_rank.';');
 
-		echo '<form method="post" class="navbar-form">';
-		echo '<div class="form-group">';
-		populateDropDownControls('job_sector', $sector_array);
-		populateDropDownControls('Month', $Month_array);
-		populateDropDownControls('Year', $Year_array);
-		echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
-		echo '</div></form>';
+		?>
+		<form method="post" class="bc-table">
+			<div class="row">
+				<div class="col-xs-12 col-md-4">
+					<?php populateDropDownControls('job_sector', $sector_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<?php populateDropDownControls('Month', $Month_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<?php populateDropDownControls('Year', $Year_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+				</div>
+			</div>
+		</form>
+		<?php
 	}
 
 
@@ -239,14 +265,24 @@ function jg_table_gen($atts){
 								FROM '.$table.' WHERE industry_name = "'.$job_sector.'"
 								AND Year = "'.$Year.'"
 								AND Month = "'.$Month.'";');
-
-		echo '<form method="post" class="navbar-form">';
-		echo '<div class="form-group">';
-		populateDropDownControls('job_sector', $sector_array);
-		populateDropDownControls('Month', $Month_array);
-		populateDropDownControls('Year', $Year_array);
-		echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
-		echo '</div></form>';
+								?>
+		<form method="post" class="bc-table">
+			<div class="row">
+				<div class="col-xs-12 col-md-4">
+					<?php populateDropDownControls('job_sector', $sector_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-3">
+					<?php populateDropDownControls('Month', $Month_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-3">
+			 		<?php populateDropDownControls('Year', $Year_array);?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+				</div>
+			</div>
+		</form>
+	<?php
 	}
 
 
@@ -258,13 +294,24 @@ function jg_table_gen($atts){
 						AND Year = "'.$Year.'"
 								AND Month = "'.$Month.'";');
 
-		echo '<form method="post" class="navbar-form">';
-		echo '<div class="form-group">';
-		populateDropDownControls('job_sector', $sector_array);
-		populateDropDownControls('Month', $Month_array);
-		populateDropDownControls('Year', $Year_array);
-		echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
-		echo '</div></form>';
+		?>
+		<form method="post" class="bc-table">
+			<div class="row">
+				<div class="col-xs-12 col-md-4">;
+					<?php populateDropDownControls('job_sector', $sector_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-3">
+					<?php populateDropDownControls('Month', $Month_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-3">;
+					<?php populateDropDownControls('Year', $Year_array); ?>
+				</div>
+				<div class="col-xs-12 col-md-2">
+					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
+				</div>
+			</div>
+		</form>
+		<?php 
 	}
 
 
@@ -275,9 +322,10 @@ function jg_table_gen($atts){
 						FROM '.$table.' WHERE industry_name = "'.$job_sector.'"
 						AND '.$col_state_name.' = "'.$area.'"
 						AND Month = "'.$Month.'" LIMIT 10000 OFFSET 2;');
-
-				echo '<form method="post" class="navbar-form" >';
-				echo '<select name = "arealist" class="form-control">';
+			?>
+				<form method="post" class="bc-table">
+					<div class="row"><div class="col-xs-12 col-md-4"><select name = "arealist" class="form-control">
+			<?php
 
 				$value = $_POST["arealist"];
 				$value_area = $_POST["arealist"];
@@ -305,17 +353,16 @@ function jg_table_gen($atts){
 			    	/** Output the dropdown */
 			    	echo $options2;
 			    	echo '</optgroup>';
-				echo '</select>'."\n\n";
+				echo '</select></div>';
 						endif;
 
-				echo '<select name = "industrylist" id="select_industry" class="form-control">';
+				echo '<div class="col-sx-12 col-md-3"><select name = "industrylist" id="select_industry" class="form-control">';
 				    $value=$_POST["industrylist"];
 				    $table_name = '';
 				    $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-				echo '</select>'."\n\n";
+				echo '</select></div>';
 
-				echo '<select name="monthlist" class = "form-control">'; #<!--onchange = "this.form.submit()"-->
-				    $value=$_POST["monthlist"];
+				echo '<div class="col-sx-12 col-md-3"><select name="monthlist" class = "form-control">';
 					$newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
 					$fetch_year_name = $newdb->get_results('SELECT DISTINCT CAST(Month AS UNSIGNED) AS Month FROM state_rankings ORDER BY CAST(Month AS UNSIGNED) ASC;');
 
@@ -330,12 +377,13 @@ function jg_table_gen($atts){
 				    	endforeach;
 				    	/** Output the dropdown */
 				    	echo $options;
-				echo '</select>'."\n\n";
+				echo '</select></div>';
 						endif;
-#				echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit""/>';
+				echo '<div class="col-sm-12 col-md-2"><input name="submit" type="submit" class="btn btn-primary" value="Submit"/></div></div>';
 				echo '</form>';
 
 	}
+
 
 		// Create tables which will be populated, only historical differs from the others hence the if statement
 		if($table_type == "Historical")
@@ -758,24 +806,6 @@ function gpbc_table_gen($atts){
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
 	   tablePopulate($rows);
-	}
-
-	if($table_type == "historical")
-	{
-		$rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical;');
-
-		echo '<table class="table table-striped table-hover sortable">
-			 <col span="7"/>
-			 <thead><tr><th></th>
-			 	<th>Population (thousands)</th>
-			 	<th>Personal Income ($millions)</th>
-			 	<th>Retail Sales ($millions)</th>
-			 	<th>Wage & Salary Employment (thousands)</th>
-			 	<th>Manufacturing Employment (thousands)</th>
-			 	<th>Construction Employment (thousands)</th>
-			 	<th>Unemployment Rate</th>
-			 	</tr></thead>';
-		tablePopulate($rows);
 	}
 
 	$output = ob_get_clean();
