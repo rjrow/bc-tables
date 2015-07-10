@@ -14,6 +14,28 @@ $(document).ready(function() {
       get_industry_list(this, true);
     });
 
+    $('.bc-table').submit(function(event){
+      event.preventDefault();
+      var tableType = $(this).attr('data-type');
+      get_new_table(this, tableType);
+    });
+
+  }
+  function get_new_table(table, tableType) {
+    $.ajax({
+      url: ajaxurl,
+      data: {
+        'action': tableType,
+        $(table).serialize(),
+      }
+      success: function(data) {
+        console.log(data);
+      },
+      error: function(errorThrown) {
+        alert('error');
+        console.log(errorThrown);
+      }
+    });
   }
 
   function get_industry_list(select_option, area_is_set) {
