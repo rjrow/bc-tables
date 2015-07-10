@@ -56,9 +56,10 @@ function createArray($rows, $string_key){
 	}
 	return($new_array);
 }
-
+echo '<pre>' . !isset($_POST['table_type']) ? "NOT SET" : $_POST['table_type'] . '</pre>';
 // Generate job growth tables shortcode function
 function jg_table_gen($atts){
+	
 	ob_start();
 
 	$table_type = $atts['table_type'];
@@ -130,12 +131,12 @@ function jg_table_gen($atts){
 
 
 	// Setting variables to be initialized to default settings if they are not selected
-	$Month = !isset($_POST['Month']) ? date("M") : $_POST['Month'];
-	$Year  = !isset($_POST['Year']) ? date("Y") : $_POST['Year'];
+	$Month 		= !isset($_POST['Month']) ? date("M") : $_POST['Month'];
+	$Year  		= !isset($_POST['Year']) ? date("Y") : $_POST['Year'];
 	$job_sector = !isset($_POST['job_sector']) ? 'Total Nonfarm' : $_POST['job_sector'];
-	$area  = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
-	$type = !isset($_POST['type']) ? "yoy" : $_POST['type'];
-	$msa_flag = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
+	$area  		= !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
+	$type 		= !isset($_POST['type']) ? "yoy" : $_POST['type'];
+	$msa_flag 	= !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
 
 	$table 			= $tableQueries[$table_type]['table'];
@@ -180,7 +181,7 @@ function jg_table_gen($atts){
 							AND Month = "'.$Month.'";');
 
 		?>
-		<form method="post" class="bc-table" data-type="jg_table_gen">
+		<form method="post" class="bc-table" data-table-type="CSR">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php echo populateDropDownControls('job_sector', $sector_array); ?>
@@ -209,7 +210,7 @@ function jg_table_gen($atts){
 
 
 		?>
-		<form method="post" class="bc-table" data-type="jg_table_gen">
+		<form method="post" class="bc-table" data-table-type="ASR">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -239,7 +240,7 @@ function jg_table_gen($atts){
 						AND Month = "'.$Month.'" ORDER BY '.$col_rank.';');
 
 		?>
-		<form method="post" class="bc-table" data-type="jg_table_gen">
+		<form method="post" class="bc-table" data-table-type="RoMSAs">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -267,7 +268,7 @@ function jg_table_gen($atts){
 								AND Year = "'.$Year.'"
 								AND Month = "'.$Month.'";');
 								?>
-		<form method="post" class="bc-table" data-type="jg_table_gen">
+		<form method="post" class="bc-table" data-table-type="MSAover">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -296,7 +297,7 @@ function jg_table_gen($atts){
 								AND Month = "'.$Month.'";');
 
 		?>
-		<form method="post" class="bc-table" data-type="jg_table_gen">
+		<form method="post" class="bc-table" data-table-type="MSAunder">
 			<div class="row">
 				<div class="col-xs-12 col-md-4">
 					<?php populateDropDownControls('job_sector', $sector_array); ?>
@@ -324,7 +325,7 @@ function jg_table_gen($atts){
 						AND '.$col_state_name.' = "'.$area.'"
 						AND Month = "'.$Month.'" LIMIT 10000 OFFSET 2;');
 			?>
-				<form method="post" class="bc-table" data-type="jg_table_gen">
+				<form method="post" class="bc-table" data-table-type="Historical">
 					<div class="row"><div class="col-xs-12 col-md-4"><select name = "arealist" class="form-control">
 			<?php
 
@@ -408,7 +409,7 @@ function jg_table_gen($atts){
 					<th>% Change</th>
 				    <th>Job Growth</th>
 				    <th># of Jobs</th>
-			        </tr></thead><tbody>';
+			        </tr></thead>	<tbody>';
 		}
 
 	tablePopulate($rows);
@@ -416,9 +417,8 @@ function jg_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
-add_action( 'wp_ajax_get_jg_table_gen', 'jg_table_gen' );
-add_action('wp_ajax_nopriv_get_jg_table_gen', 'jg_table_gen' );
-
+add_action( 'wp_ajax_jg_table_gen', 'jg_table_gen' );
+add_action('wp_ajax_nopriv_jg_table_gen', 'jg_table_gen' );
 
 //Generate wbc tables shortcode function
 function bc_table_gen($atts){
@@ -633,8 +633,6 @@ function bc_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
-add_action( 'wp_ajax_get_bc_table_gen', 'bc_table_gen' );
-add_action('wp_ajax_nopriv_get_bc_table_gen', 'bc_table_gen' );
 
 function gpbc_table_gen($atts){
 	ob_start();
@@ -836,8 +834,10 @@ function gpbc_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
-add_action( 'wp_ajax_get_gpbc_table_gen', 'gpbc_table_gen' );
-add_action('wp_ajax_nopriv_get_gpbc_table_gen', 'gpbc_table_gen' );
+
+add_shortcode('jg-tables'  , 'jg_table_gen');
+add_shortcode('bc-tables'  , 'bc_table_gen');
+add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
 function populateDropDownControls($name, $dropdown_query){
 	$dropdown_complete = '<select name="'.$name.'" id = "'.$name.'" class="form-control">';
@@ -847,10 +847,6 @@ function populateDropDownControls($name, $dropdown_query){
 	$dropdown_complete .= '</select>';
 	echo $dropdown_complete;
 }
-
-add_shortcode('jg-tables'  , 'jg_table_gen');
-add_shortcode('bc-tables'  , 'bc_table_gen');
-add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
 function bctables_js_enqueue() {
 		echo '<script type="text/javascript">var ajaxurl = "'. admin_url('admin-ajax.php') .'";</script>';

@@ -16,19 +16,24 @@ $(document).ready(function() {
 
     $('.bc-table').submit(function(event){
       event.preventDefault();
-      var tableType = $(this).attr('data-type');
+      var tableType = $(this).attr('data-table-type');
       get_new_table(this, tableType);
     });
 
   }
   function get_new_table(table, tableType) {
     console.log(tableType);
+    var formData = {
+        'action'          : 'jg_table_gen',
+        'table_type'      : tableType,
+        'arealist'        : $('select[name=arealist]', table).val(),
+        'industrylist'    : $('select[name=industrylist]', table).val(),
+        'monthlist'       : $('select[name=monthlist]', table).val()
+    };
     $.ajax({
       url: ajaxurl,
-      data:{
-        "action": 'get_jg_table_gen',
-        "data": $(table).serialize()
-      },
+      type: 'POST',
+      data: formData,
       success: function(data) {
         console.log(data);
       },
