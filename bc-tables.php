@@ -51,13 +51,15 @@ function createArray($rows, $string_key){
 	echo '<pre>';
 	print_r($rows);
 	echo '</pre>';
-
     $new_array;
-    foreach ($rows as $rows) {
+    foreach ($rows as $row) {
         foreach ($rows as $key => $value) {
             array_push($new_array, $value[$string_key]);
         }
     }
+    echo '<pre>';
+	print_r($new_array);
+	echo '</pre>';
     return ($new_array);
 }
 
@@ -167,7 +169,7 @@ function jg_table_gen($atts)
     $sector_array = array(
         "job_sector" => $sectors
     );
-    
+
     $sector_array = createArray($sector_array, 'industry_name');
     
     $months = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
