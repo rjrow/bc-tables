@@ -48,21 +48,14 @@ function tablePopulate($rows)
 }
 
 function createArray($rows, $string_key){
-	echo '<pre>';
-	print_r($rows);
-	echo '</pre>';
-    $new_array;
+    $new_array = array();
     foreach ($rows as $row) {
-        foreach ($rows as $key => $value) {
+        foreach ($row as $key => $value) {
             array_push($new_array, $value[$string_key]);
         }
     }
-    echo '<pre>';
-	print_r($new_array);
-	echo '</pre>';
     return ($new_array);
 }
-
 
 // Generate job growth tables shortcode function
 function jg_table_gen($atts)
