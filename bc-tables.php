@@ -13,6 +13,7 @@
 ?>
 <?php
 
+
 function get_industry_list_by_area(){
 		if ( isset($_REQUEST) ) {
 			$area = $_REQUEST['area'];
@@ -28,6 +29,7 @@ function get_industry_list_by_area(){
 		}
 		die();
 }
+
 add_action( 'wp_ajax_my_action', 'get_industry_list_by_area' );
 add_action('wp_ajax_nopriv_my_action', 'get_industry_list_by_area' );
 
@@ -56,12 +58,16 @@ function createArray($rows, $string_key){
 	}
 	return($new_array);
 }
-echo '<pre>' . !isset($_POST) ? "NOT SET" : print_r($_POST) . '</pre>';
-foreach ($_POST as $key => $value)
-    echo $key.'='.$value.'<br />';
+
+// echo '<pre>' . !isset($_POST) ? "NOT SET" : print_r($_POST) . '</pre>';
+// foreach ($_POST as $key => $value)
+//     echo $key.'='.$value.'<br />';
+
+
+
 // Generate job growth tables shortcode function
 function jg_table_gen($atts){
-	
+
 	ob_start();
 
 	$table_type = $atts['table_type'];
@@ -419,8 +425,9 @@ function jg_table_gen($atts){
 	$output = ob_get_clean();
 	return $output;
 }
-add_action( 'wp_ajax_jg_table_gen', 'jg_table_gen' );
-add_action('wp_ajax_nopriv_jg_table_gen', 'jg_table_gen' );
+
+add_action( 'wp_ajax_echo_jg_table_gen', 'jg_table_gen' );
+add_action('wp_ajax_nopriv_echo_jg_table_gen', 'jg_table_gen' );
 
 //Generate wbc tables shortcode function
 function bc_table_gen($atts){
@@ -849,6 +856,12 @@ function populateDropDownControls($name, $dropdown_query){
 	$dropdown_complete .= '</select>';
 	echo $dropdown_complete;
 }
+
+
+
+  function echo_jg_table_gen(){
+    echo jg_table_gen();
+  }
 
 function bctables_js_enqueue() {
 		echo '<script type="text/javascript">var ajaxurl = "'. admin_url('admin-ajax.php') .'";</script>';

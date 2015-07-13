@@ -21,8 +21,10 @@ $(document).ready(function() {
     });
 
   }
+
+
   function get_new_table(table, tableType) {
-    console.log(tableType);
+
     var formData = {
         'action'          : 'jg_table_gen',
         'table_type'      : tableType,
@@ -30,6 +32,9 @@ $(document).ready(function() {
         'industrylist'    : $('select[name=industrylist]', table).val(),
         'monthlist'       : $('select[name=monthlist]', table).val()
     };
+
+    console.log(formData);
+
     $.ajax({
       url: ajaxurl,
       type: 'POST',
@@ -66,7 +71,7 @@ $(document).ready(function() {
         'area': selected_area
       },
       success: function(data) {
-       
+
         selectIndustry.html('');
         $.each(data, function(index, value){
           selectIndustry.append('<option>' + data[index] + '</option>');
