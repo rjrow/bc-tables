@@ -26,7 +26,7 @@ $(document).ready(function() {
   function get_new_table(table, tableType) {
 
     var formData = {
-        'action'          : 'jg_table_gen',
+        'action'          : 'echo_jg_table_gen',
         'table_type'      : tableType,
         'arealist'        : $('select[name=arealist]', table).val(),
         'industrylist'    : $('select[name=industrylist]', table).val(),
