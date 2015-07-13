@@ -240,9 +240,21 @@ function jg_table_gen($atts){
 
 	if($table_type == "RoMSAs")
 	{
+
 		#if msa == over || msa == all || msa == under :: do stuff
+		if($msa_flag == "all")
+		{
+			$table = $tableQueries["RoMSAs"]["table"];
+		}elseif ($msa_flag == "under")
+		{
+			$table = $tableQueries["MSAunder"]["table"];
+		}elseif ($msa_flag == "over")
+		{
+			$table = $tableQueries["MSAover"]["table"];
+		}
+
 		$rows = $newdb->get_results( 'SELECT '.$col_state_name.', '.$col_rank.', FORMAT('.$col_pct_change.',2), FORMAT('.$col_job_growth.',2),
-						FORMAT(value,2)
+						FORMAT('.$col_value.',2)
 						FROM '.$table.' WHERE industry_name = "'.$job_sector.'"
 						AND Year = "'.$Year.'"
 						AND Month = "'.$Month.'" ORDER BY '.$col_rank.';');
@@ -266,64 +278,6 @@ function jg_table_gen($atts){
 		</form>
 		<?php
 	}
-
-
-	if($table_type == "MSAover")
-	{
-		$rows = $newdb->get_results('SELECT '.$col_state_name.', '.$col_rank.', FORMAT('.$col_pct_change.',2),
-								FORMAT('.$col_job_growth.',2), FORMAT('.$col_value.',2)
-								FROM '.$table.' WHERE industry_name = "'.$job_sector.'"
-								AND Year = "'.$Year.'"
-								AND Month = "'.$Month.'";');
-								?>
-		<form method="post" class="bc-table" data-table-type="MSAover">
-			<div class="row">
-				<div class="col-xs-12 col-md-4">
-					<?php populateDropDownControls('job_sector', $sector_array); ?>
-				</div>
-				<div class="col-xs-12 col-md-3">
-					<?php populateDropDownControls('Month', $Month_array); ?>
-				</div>
-				<div class="col-xs-12 col-md-3">
-			 		<?php populateDropDownControls('Year', $Year_array);?>
-				</div>
-				<div class="col-xs-12 col-md-2">
-					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-				</div>
-			</div>
-		</form>
-	<?php
-	}
-
-
-	if($table_type == "MSAunder")
-	{
-		$rows = $newdb->get_results('SELECT '.$col_state_name.', '.$col_rank.', FORMAT('.$col_pct_change.',2),
-						FORMAT('.$col_job_growth.',2), FORMAT('.$col_value.',2)
-						FROM '.$table.' WHERE industry_name = "'.$job_sector.'"
-						AND Year = "'.$Year.'"
-								AND Month = "'.$Month.'";');
-
-		?>
-		<form method="post" class="bc-table" data-table-type="MSAunder">
-			<div class="row">
-				<div class="col-xs-12 col-md-4">
-					<?php populateDropDownControls('job_sector', $sector_array); ?>
-				</div>
-				<div class="col-xs-12 col-md-3">
-					<?php populateDropDownControls('Month', $Month_array); ?>
-				</div>
-				<div class="col-xs-12 col-md-3">
-					<?php populateDropDownControls('Year', $Year_array); ?>
-				</div>
-				<div class="col-xs-12 col-md-2">
-					<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-				</div>
-			</div>
-		</form>
-		<?php
-	}
-
 
 	if($table_type == "Historical")
 	{
