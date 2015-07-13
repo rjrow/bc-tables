@@ -28,6 +28,7 @@ $(document).ready(function() {
     var formData = {
         'action'          : 'echo_jg_table_gen',
         'table_type'      : tableType,
+        'formcontrols'    : false,
         'arealist'        : $('select[name=arealist]', table).val(),
         'industrylist'    : $('select[name=industrylist]', table).val(),
         'monthlist'       : $('select[name=monthlist]', table).val()

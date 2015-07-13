@@ -47,8 +47,11 @@ function tablePopulate($rows)
     echo '</tbody></table>';
 }
 
-function createArray($rows, $string_key)
-{
+function createArray($rows, $string_key){
+	echo '<pre>';
+	print_r($rows);
+	echo '</pre>';
+
     $new_array;
     foreach ($rows as $rows) {
         foreach ($rows as $key => $value) {
@@ -58,21 +61,14 @@ function createArray($rows, $string_key)
     return ($new_array);
 }
 
-// echo '<pre>' . !isset($_POST) ? "NOT SET" : print_r($_POST) . '</pre>';
-// foreach ($_POST as $key => $value)
-//     echo $key.'='.$value.'<br />';
-
-
 
 // Generate job growth tables shortcode function
 function jg_table_gen($atts)
-{
-    
+{   
     ob_start();
-    
-    $table_type = $atts['table_type'];
-    
-    
+    $table_type = isset($_POST['table_type']) ? $_POST['table_type'] : $atts['table_type'];
+   	$form_controls =  isset($_POST['formcontrols']) ? false : true;
+
     // Setup databas e for call later on
     $DB_USER = DB_USER_jg;
     $DB_PASS = DB_PASS_jg;
@@ -80,8 +76,7 @@ function jg_table_gen($atts)
     $DB_HOST = DB_HOST_jg;
     
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-    
-    
+
     // Setup object for generating queries
     $tableQueries = Array(
         "RoMSAs" => Array(
@@ -147,8 +142,8 @@ function jg_table_gen($atts)
     );
     
     // Setting variables to be initialized to default settings if they are not selected
-    $Month      = !isset($_POST['Month']) ? date("M") : $_POST['Month'];
-    $Year       = !isset($_POST['Year']) ? date("Y") : $_POST['Year'];
+    $month      = !isset($_POST['Month']) ? date("M") : $_POST['Month'];
+    $year       = !isset($_POST['Year']) ? date("Y") : $_POST['Year'];
     $job_sector = !isset($_POST['job_sector']) ? 'Total Nonfarm' : $_POST['job_sector'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
@@ -165,27 +160,28 @@ function jg_table_gen($atts)
     
     
     // Update Month so that we are pulling in correct data about current month (query table, date_ref_table)
-    $Month     = "1";
-    $MonthName = date("F", strtotime($Month));
+    $month     = "1";
+    $monthName = date("F", strtotime($month));
     
     $sectors      = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sector_array = array(
         "job_sector" => $sectors
     );
+    
     $sector_array = createArray($sector_array, 'industry_name');
     
-    $Months = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
-    sort($Months);
-    $Month_array = array(
-        "Month" => $Months
+    $months = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
+    sort($months);
+    $month_array = array(
+        "Month" => $months
     );
-    $Month_array = createArray($Month_array, 'Month');
+    $month_array = createArray($month_array, 'Month');
     
-    $Years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
-    $Year_array = array(
-        "year" => $Years
+    $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
+    $year_array = array(
+        "year" => $years
     );
-    $Year_array = createArray($Year_array, 'year');
+    $year_array = createArray($year_array, 'year');
     
     switch ($table_type) {
         
@@ -193,139 +189,148 @@ function jg_table_gen($atts)
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
-							AND Year = "' . $Year . '"
-							AND Month = "' . $Month . '"  UNION ALL
+							AND Year = "' . $year . '"
+							AND Month = "' . $month . '"  UNION ALL
 							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
 								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 								FROM ' . $table_us . ' WHERE industry_name = "' . $job_sector . '" AND industry_name <=> supersector_name
-								AND Year = "' . $Year . '"
-								AND Month = "' . $Month . '";');
-           
-           ?>
-			<form method="post" class="bc-table" data-table-type="CSR">
-				<div class="row">
-					<div class="col-xs-12 col-md-4">
-						<?php
-            echo populateDropDownControls('job_sector', $sector_array); ?>
+								AND Year = "' . $year . '"
+								AND Month = "' . $month . '";');
+            if ($form_controls):
+           	?>
+				<form method="post" class="bc-table" data-table-type="CSR">
+					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php echo populateDropDownControls('job_sector', $sector_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-4">
+							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
+						</div>
 					</div>
-					<div class="col-xs-12 col-md-4">
-						<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
-					</div>
-				</div>
-			</form>
+				</form>
 			<?php
+			endif;
             break;
         case "ASR":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
-							AND Year = "' . $Year . '"
-							AND Month = "' . $Month . '"  UNION ALL
+							AND Year = "' . $year . '"
+							AND Month = "' . $month . '"  UNION ALL
 							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
 								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 								FROM ' . $table_us . ' WHERE industry_name = "' . $job_sector . '" AND industry_name <=> supersector_name
-								AND Year = "' . $Year . '"
-								AND Month = "' . $Month . '";');
+								AND Year = "' . $year . '"
+								AND Month = "' . $month . '";');
+            if ($form_controls):
 			?>
-			<form method="post" class="bc-table" data-table-type="ASR">
-				<div class="row">
-					<div class="col-xs-12 col-md-4">
-						<?php populateDropDownControls('job_sector', $sector_array);?>
+				<form method="post" class="bc-table" data-table-type="ASR">
+					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('job_sector', $sector_array);?>
+						</div>
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('Month', $month_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<?php populateDropDownControls('Year', $Year_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+						</div>
 					</div>
-					<div class="col-xs-12 col-md-4">
-						<?php populateDropDownControls('Month', $Month_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<?php populateDropDownControls('Year', $Year_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-					</div>
-				</div>
-			</form>
+				</form>
 			<?php
+			endif;
             break;
         case "RoMSAs":
             #if msa == over || msa == all || msa == under :: do stuff
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
 							FORMAT(value,2)
 							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
-							AND Year = "' . $Year . '"
-							AND Month = "' . $Month . '" ORDER BY ' . $col_rank . ';'); ?>
-			<form method="post" class="bc-table" data-table-type="RoMSAs">
-				<div class="row">
-					<div class="col-xs-12 col-md-4">
-						<?php populateDropDownControls('job_sector', $sector_array); ?>
+							AND Year = "' . $year . '"
+							AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
+			if ($form_controls):
+			?>
+				<form method="post" class="bc-table" data-table-type="RoMSAs">
+					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('job_sector', $sector_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<?php populateDropDownControls('Month', $month_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<?php populateDropDownControls('Year', $Year_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+						</div>
 					</div>
-					<div class="col-xs-12 col-md-2">
-						<?php populateDropDownControls('Month', $Month_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<?php populateDropDownControls('Year', $Year_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-					</div>
-				</div>
-			</form>
+				</form>
 			<?php
+			endif;
             break;
         case "MSAover":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 									FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 									FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
-									AND Year = "' . $Year . '"
-									AND Month = "' . $Month . '";'); ?>
-			<form method="post" class="bc-table" data-table-type="MSAover">
-				<div class="row">
-					<div class="col-xs-12 col-md-4">
-						<?php populateDropDownControls('job_sector', $sector_array); ?>
+									AND Year = "' . $year . '"
+									AND Month = "' . $month . '";');
+			if ($form_controls):
+			?>
+				<form method="post" class="bc-table" data-table-type="MSAover">
+					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('job_sector', $sector_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-3">
+							<?php populateDropDownControls('Month', $month_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-3">
+					 		<?php populateDropDownControls('Year', $Year_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+						</div>
 					</div>
-					<div class="col-xs-12 col-md-3">
-						<?php populateDropDownControls('Month', $Month_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-3">
-				 		<?php populateDropDownControls('Year', $Year_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-					</div>
-				</div>
-			</form>
+				</form>
 			<?php
+			endif;
             break;
         case "MSAunder":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
-							AND Year = "' . $Year . '"
-									AND Month = "' . $Month . '";');
-           
-           ?>
-			<form method="post" class="bc-table" data-table-type="MSAunder">
-				<div class="row">
-					<div class="col-xs-12 col-md-4">
-						<?php populateDropDownControls('job_sector', $sector_array); ?>
+							AND Year = "' . $year . '"
+									AND Month = "' . $month . '";');
+            if ($form_controls):
+           	?>
+				<form method="post" class="bc-table" data-table-type="MSAunder">
+					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('job_sector', $sector_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-3">
+							<?php populateDropDownControls('Month', $month_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-3">
+							<?php populateDropDownControls('Year', $Year_array); ?>
+						</div>
+						<div class="col-xs-12 col-md-2">
+							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+						</div>
 					</div>
-					<div class="col-xs-12 col-md-3">
-						<?php populateDropDownControls('Month', $Month_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-3">
-						<?php populateDropDownControls('Year', $Year_array); ?>
-					</div>
-					<div class="col-xs-12 col-md-2">
-						<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-					</div>
-				</div>
-			</form>
+				</form>
 			<?php
+			endif;
             break;
         case "Historical":
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 	                        FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 	                        FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
 	                        AND ' . $col_state_name . ' = "' . $area . '"
-	                        AND Month = "' . $Month . '" LIMIT 10000 OFFSET 2;');
+	                        AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
             if ($form_controls) {
             	?>
 				<form method="post" class="bc-table" data-table-type="Historical">
@@ -376,10 +381,10 @@ function jg_table_gen($atts)
                 if (!empty($fetch_year_name)): /** Loop through the $results and add each as a dropdown option */ 
                     $options = '';
                     foreach ($fetch_year_name as $result):
-                        $MonthNum  = $result->Month;
-                        $dateObj   = DateTime::createFromFormat('!m', $MonthNum);
-                        $MonthName = $dateObj->format('F');
-                        $options .= sprintf("\t" . '<option value="%1$s">%1$s</option>' . "\n", $MonthName);
+                        $monthNum  = $result->Month;
+                        $dateObj   = DateTime::createFromFormat('!m', $monthNum);
+                        $monthName = $dateObj->format('F');
+                        $options .= sprintf("\t" . '<option value="%1$s">%1$s</option>' . "\n", $monthName);
                     endforeach;
                     /** Output the dropdown */
                     echo $options;
