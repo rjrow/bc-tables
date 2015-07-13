@@ -24,8 +24,7 @@ $(document).ready(function() {
 
 
   function get_new_table(tableForm, tableType) {
-    $table = $(tableForm).siblings('table');
-    $table.hide('slow');
+    $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
 
     var formData = {
         'action'          : 'echo_jg_table_gen',
@@ -36,15 +35,12 @@ $(document).ready(function() {
         'month'       : $('select[name=monthlist]', tableForm).val()
     };
 
-    console.log(formData);
-
     $.ajax({
       url: ajaxurl,
       type: 'POST',
       data: formData,
       success: function(data) {
-        $table.hide('fast');
-        console.log(data);
+        $table.show('fast');
         $table.replaceWith(data);
       },
       error: function(errorThrown) {

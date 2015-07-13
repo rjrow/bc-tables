@@ -138,13 +138,22 @@ function jg_table_gen($atts)
     );
     
     // Setting variables to be initialized to default settings if they are not selected
-    $month      = !isset($_POST['month']) ? date("M") : $_POST['month'];
+    $month      = !isset($_POST['month']) ? 'January' : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
     $industry 	= !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
-     
+
+    $formValue = array(
+    	'month' => $month,
+    	'year' => $year,
+    	'industry' => $industry,
+    	'area' => $area,
+    	'type' => $type,
+    	'msa_flag' => $msa_flag
+    );
+
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
     $col_state_name = $tableQueries[$table_type]['col_state_name'];
