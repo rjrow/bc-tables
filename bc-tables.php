@@ -47,7 +47,8 @@ function tablePopulate($rows)
     echo '</tbody></table>';
 }
 
-function createArray($rows, $string_key){
+function createArray($rows, $string_key)
+{
     $new_array = array();
     foreach ($rows as $row) {
         foreach ($row as $key => $value) {
@@ -137,13 +138,22 @@ function jg_table_gen($atts)
     );
     
     // Setting variables to be initialized to default settings if they are not selected
-    $month      = !isset($_POST['Month']) ? date("M") : $_POST['Month'];
-    $year       = !isset($_POST['Year']) ? date("Y") : $_POST['Year'];
-    $job_sector = !isset($_POST['job_sector']) ? 'Total Nonfarm' : $_POST['job_sector'];
+    $month      = !isset($_POST['month']) ? 'January' : $_POST['month'];
+    $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
+    $industry 	= !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
-    
+
+    $formValue = array(
+    	'month' => $month,
+    	'year' => $year,
+    	'industry' => $industry,
+    	'area' => $area,
+    	'type' => $type,
+    	'msa_flag' => $msa_flag
+    );
+
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
     $col_state_name = $tableQueries[$table_type]['col_state_name'];
@@ -160,7 +170,7 @@ function jg_table_gen($atts)
     
     $sectors      = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sector_array = array(
-        "job_sector" => $sectors
+        "industry" => $sectors
     );
 
     $sector_array = createArray($sector_array, 'industry_name');
@@ -170,7 +180,7 @@ function jg_table_gen($atts)
     $month_array = array(
         "Month" => $months
     );
-    $month_array = createArray($month_array, 'Month');
+    $month_array = createArray($month_array, 'month');
     
     $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
     $year_array = array(
@@ -183,12 +193,12 @@ function jg_table_gen($atts)
         case "CSR":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 							AND Year = "' . $year . '"
 							AND Month = "' . $month . '"  UNION ALL
 							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
 								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-								FROM ' . $table_us . ' WHERE industry_name = "' . $job_sector . '" AND industry_name <=> supersector_name
+								FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
 								AND Year = "' . $year . '"
 								AND Month = "' . $month . '";');
             if ($form_controls):
@@ -196,7 +206,7 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="CSR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php echo populateDropDownControls('job_sector', $sector_array); ?>
+							<?php echo populateDropDownControls('industry', $sector_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
 							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
@@ -209,12 +219,12 @@ function jg_table_gen($atts)
         case "ASR":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 							AND Year = "' . $year . '"
 							AND Month = "' . $month . '"  UNION ALL
 							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
 								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-								FROM ' . $table_us . ' WHERE industry_name = "' . $job_sector . '" AND industry_name <=> supersector_name
+								FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
 								AND Year = "' . $year . '"
 								AND Month = "' . $month . '";');
             if ($form_controls):
@@ -222,13 +232,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="ASR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('job_sector', $sector_array);?>
+							<?php populateDropDownControls('industry', $sector_array);?>
 						</div>
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('Month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('Year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -242,7 +252,7 @@ function jg_table_gen($atts)
             #if msa == over || msa == all || msa == under :: do stuff
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
 							FORMAT(value,2)
-							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 							AND Year = "' . $year . '"
 							AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
 			if ($form_controls):
@@ -250,13 +260,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="RoMSAs">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('job_sector', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('Month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('Year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -269,7 +279,7 @@ function jg_table_gen($atts)
         case "MSAover":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 									FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-									FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+									FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 									AND Year = "' . $year . '"
 									AND Month = "' . $month . '";');
 			if ($form_controls):
@@ -277,13 +287,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAover">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('job_sector', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('Month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-					 		<?php populateDropDownControls('Year', $Year_array); ?>
+					 		<?php populateDropDownControls('year', $Year_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -296,7 +306,7 @@ function jg_table_gen($atts)
         case "MSAunder":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 							AND Year = "' . $year . '"
 									AND Month = "' . $month . '";');
             if ($form_controls):
@@ -304,13 +314,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAunder">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('job_sector', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('Month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('Year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -323,7 +333,7 @@ function jg_table_gen($atts)
         case "Historical":
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 	                        FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-	                        FROM ' . $table . ' WHERE industry_name = "' . $job_sector . '"
+	                        FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 	                        AND ' . $col_state_name . ' = "' . $area . '"
 	                        AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
             if ($form_controls) {

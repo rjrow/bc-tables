@@ -23,25 +23,25 @@ $(document).ready(function() {
   }
 
 
-  function get_new_table(table, tableType) {
+  function get_new_table(tableForm, tableType) {
+    $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
 
     var formData = {
         'action'          : 'echo_jg_table_gen',
         'table_type'      : tableType,
         'formcontrols'    : false,
-        'arealist'        : $('select[name=arealist]', table).val(),
-        'industrylist'    : $('select[name=industrylist]', table).val(),
-        'monthlist'       : $('select[name=monthlist]', table).val()
+        'area'        : $('select[name=arealist]', tableForm).val(),
+        'industry'    : $('select[name=industrylist]', tableForm).val(),
+        'month'       : $('select[name=monthlist]', tableForm).val()
     };
-
-    console.log(formData);
 
     $.ajax({
       url: ajaxurl,
       type: 'POST',
       data: formData,
       success: function(data) {
-        console.log(data);
+        $table.show('fast');
+        $table.replaceWith(data);
       },
       error: function(errorThrown) {
         alert('error');
