@@ -1,15 +1,6 @@
 $(document).ready(function() {
   if ($('.bc-table')) {
 
-    var area_is_set = false;
-    var area_set = document.getElementsByName('area')[0].value;
-
-    if (area_set !== "") {
-      area_is_set = true;
-      console.log('area_is_set: ' + area_is_set);
-      get_industry_list(document.getElementsByName("area"), area_is_set);
-    }
-
     $('.bc-table select[name=area]').change(function() {
       get_industry_list(this, true);
     });
@@ -51,20 +42,18 @@ $(document).ready(function() {
 
   function get_industry_list(select_option, area_is_set) {
 
-    var selected_area;
     var area_set = $(select_option).val();
     var selectIndustry = $('#select_industry');
-
-    console.log('area_set: ' + area_set);
-    selected_area = area_set;
     selectIndustry.html('<option>Loading</option>');
-
+    
+    console.log('area_set: ' + area_set);
+    
     $.ajax({
       dataType: 'json',
       url: ajaxurl,
       data: {
         'action': 'my_action',
-        'area': selected_area
+        'area': area_set
       },
       success: function(data) {
         var defaultArea = 'Total Nonfarm';

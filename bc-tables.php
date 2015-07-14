@@ -14,28 +14,31 @@
 <?php
 
 
-function get_industry_list_by_area()
+function get_industry_list_by_area($area = 'Total Nonfarm')
 {
-    if (isset($_REQUEST)) {
-        $area       = $_REQUEST['area'];
-        $name       = plugin_dir_path(__FILE__) . '/data/areas.json';
-        $json       = file_get_contents($name);
-        $json       = json_decode($json, true);
-        $json_final = $json[$area];
-        if ($json != NULL) {
-            echo json_encode($json_final);
-        } else {
-            echo 'Value is null';
-        }
+
+    $area           = isset($_REQUEST['area']) ? $_REQUEST['area'] : $area ;
+    $json_file      = file_get_contents(plugin_dir_path(__FILE__) . '/data/areas.json');
+    $json_decoded   = json_decode($json_file, true);
+    $json_industries     = $json_decoded[$area];
+    if ($json_industries != NULL) {
+        if ($_REQUEST['area']) {
+            echo json_encode($json_industries);
+            die();
+        }else{
+            return $json_industries;
+        }   
+    } else {
+        return 'Value is null - goood';
     }
-    die();
+
 }
 
 add_action('wp_ajax_my_action', 'get_industry_list_by_area');
 add_action('wp_ajax_nopriv_my_action', 'get_industry_list_by_area');
 
 
-function tablePopulate($rows)
+function table_populate($rows)
 {
     foreach ($rows as $rows) {
         echo '<tr>';
@@ -47,16 +50,15 @@ function tablePopulate($rows)
     echo '</tbody></table>';
 }
 
-function createArray($rows, $string_key)
+function clean_up_array($rows, $string_key)
 {
-    $new_array = array();
-    foreach ($rows as $row) {
-        foreach ($row as $key => $value) {
-            array_push($new_array, $value[$string_key]);
-        }
+    $new = array();
+    foreach ($rows as $key => $value ) {
+        array_push($new, $value[$string_key]);
     }
-    return ($new_array);
+    return $new;
 }
+
 
 // Generate job growth tables shortcode function
 function jg_table_gen($atts)
@@ -145,7 +147,6 @@ function jg_table_gen($atts)
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
-
     $formValues = array(
     	'month' => $month,
     	'year' => $year,
@@ -154,11 +155,6 @@ function jg_table_gen($atts)
     	'type' => $type,
     	'msa_flag' => $msa_flag
     );
-
-
-    echo '<pre>';
-	print_r($formValues);
-	echo '</pre>';
 
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
@@ -174,43 +170,23 @@ function jg_table_gen($atts)
     $month     = "1";
     $monthName = date("F", strtotime($month));
 
- $types_array =  array(
-		[0] => array(
-		       "ytd" => "Year to Date",
-		       "ann" => "Annual",
-		       "mom" => "Month over Month",
-		       "yoy" => "Year over Year"
-		       )
+    $types =  array(
+	   "ytd" => "Year to Date",
+	   "ann" => "Annual",
+	   "mom" => "Month over Month",
+	   "yoy" => "Year over Year"
 	);
 
-/*
-    $types_array = array(
-	    	"types" => $types
-    	);
-*/
+    $sectors    = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
+    $sectors    = clean_up_array($sectors, 'industry_name');
 
-    $types_array = createArray($types_array, 'types');
-
-
-    $sectors      = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
-    $sector_array = array(
-        "industry" => $sectors
-    );
-
-    $sector_array = createArray($sector_array, 'industry_name');
-
-    $months = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
+    $months     = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
+    $months     = clean_up_array($months, 'Month');
     sort($months);
-    $month_array = array(
-        "Month" => $months
-    );
-    $month_array = createArray($month_array, 'month');
 
     $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
-    $year_array = array(
-        "year" => $years
-    );
-    $year_array = createArray($year_array, 'year');
+    $years      = clean_up_array($years, 'year');
+    sort($years);
 
     switch ($table_type) {
 
@@ -230,10 +206,10 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="CSR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('types'   , $types_array , $formValues); ?>
+							<?php populateDropDownControls('types', $types , $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
+							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
 							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
@@ -259,13 +235,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="ASR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
+							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('month', $month_array, $formValues); ?>
+							<?php populateDropDownControls('month', $month, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
+							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -287,13 +263,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="RoMSAs">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
+							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('month', $month_array, $formValues); ?>
+							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
+							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -314,13 +290,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAover">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
+							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $month_array, $formValues); ?>
+							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-					 		<?php populateDropDownControls('year', $Year_array, $formValues); ?>
+					 		<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -341,13 +317,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAunder">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
+							<?php populateDropDownControls('industry', $sector, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $month_array, $formValues); ?>
+							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
+							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -370,9 +346,6 @@ function jg_table_gen($atts)
 	            	     <div class="col-xs-12 col-md-4">
 	             	        <select name = "area" class="form-control">
 	        	<?php
-                $value      = $_POST["area"];
-                $value_area = $_POST["area"];
-
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 $fetch_state_name = $newdb->get_results('SELECT DISTINCT state_name FROM state_rankings ORDER BY state_name ASC;');
                 echo '<optgroup label = "States">';
@@ -399,9 +372,12 @@ function jg_table_gen($atts)
 
                 echo '<div class="col-sx-12 col-md-3">';
                 echo '<select name = "industry" id="select_industry" class="form-control">';
-                //$value      = $_POST["industry"];
-                //$table_name = '';
-                //$newdb      = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
+                $fetch_industries = get_industry_list_by_area($area);
+                if($fetch_industries !== NULL){
+                    foreach ($fetch_industries as $key => $value) {
+                        echo '<option' . ($formValues['industry'] === $value ? ' selected ' : '' ) . '>' . $value. '</option>';
+                    }                    
+                }
                 echo '</select>';
                 echo '</div>';
 
@@ -429,7 +405,7 @@ function jg_table_gen($atts)
                 echo '</div>';
                 echo '</form>';
             }
-            endbreak;
+            break;
     }
     // Create tables which will be populated, only historical differs from the others hence the if statement
     if ($table_type == "Historical") {
@@ -454,7 +430,7 @@ function jg_table_gen($atts)
 		        </tr></thead>	<tbody>';
     }
 
-    tablePopulate($rows);
+    table_populate($rows);
 
     $output = ob_get_clean();
     return $output;
@@ -501,7 +477,7 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
 
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_ggr, Q3A2,
 						 Q4A2, Q5A2
@@ -522,7 +498,7 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 		       </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
     }
 
     if ($state == "new mexico" OR $state == "oregon") {
@@ -544,7 +520,7 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
 
 
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
@@ -565,7 +541,7 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 		       </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
     }
 
     if ($state == "montana") {
@@ -585,7 +561,7 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
 
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q3A2, Q4A2, Q5A2
 				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -603,7 +579,7 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		       </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
     } else {
         $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1
 				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -624,7 +600,7 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 	          </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2
 						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
 						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
@@ -641,7 +617,7 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 	          </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
     }
 
     $output = ob_get_clean();
@@ -687,7 +663,7 @@ function gpbc_table_gen($atts)
 	              </tr></thead><tbody>';
 
 
-        tablePopulate($rows);
+        table_populate($rows);
 
 
         $rows = $newdb->get_results('SELECT organization,
@@ -711,7 +687,7 @@ function gpbc_table_gen($atts)
 		      <th>Construction Empl.</th>
 	              </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
 
     }
 
@@ -732,7 +708,7 @@ function gpbc_table_gen($atts)
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
@@ -748,7 +724,7 @@ function gpbc_table_gen($atts)
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
 
-        tablePopulate($rows);
+        table_populate($rows);
 
     }
 
@@ -769,7 +745,7 @@ function gpbc_table_gen($atts)
 				      <th>Apartment Vacancy (Q4 %)</th>
 				      <th>Apartment Absorpotion</th>
 			              </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
@@ -786,7 +762,7 @@ function gpbc_table_gen($atts)
 				      <th>Apartment Vacancy (Q4 %)</th>
 				      <th>Apartment Absorpotion</th>
 			              </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
 
     }
 
@@ -805,7 +781,7 @@ function gpbc_table_gen($atts)
 			      <th>Vacancy (Year End %)</th>
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
@@ -820,7 +796,7 @@ function gpbc_table_gen($atts)
 			      <th>Vacancy (Year End %)</th>
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
-        tablePopulate($rows);
+        table_populate($rows);
     }
 
 
@@ -838,7 +814,7 @@ function gpbc_table_gen($atts)
 			  <th>Construction Employment (thousands)</th>
 			  <th>Unemployment Rate</th>';
 
-        tablePopulate($rows);
+        table_populate($rows);
     }
 
     $output = ob_get_clean();
@@ -851,10 +827,6 @@ add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
 function populateDropDownControls($name, $dropdown_query, $formValues)
 {
-	echo '<pre>';
-	print_r($formValues);
-	echo '</pre>';
-
     $dropdown_complete = '<select name="' . $name . '" id = "' . $name . '" class="form-control">';
     foreach ($dropdown_query as $value) {
         $dropdown_complete .= '<option value ="' . $value . '"' . ($formValues[$name] === $value ? ' selected ' : '' ) . '>' . $value . '</option>';
