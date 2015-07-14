@@ -145,7 +145,7 @@ function jg_table_gen($atts)
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
-    $formValue = array(
+    $formValues = array(
     	'month' => $month,
     	'year' => $year,
     	'industry' => $industry,
@@ -153,6 +153,10 @@ function jg_table_gen($atts)
     	'type' => $type,
     	'msa_flag' => $msa_flag
     );
+
+    echo '<pre>';
+	print_r($formValues);
+	echo '</pre>';
 
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
@@ -206,7 +210,7 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="CSR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php echo populateDropDownControls('industry', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
 							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
@@ -232,13 +236,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="ASR">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array);?>
+							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -260,13 +264,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="RoMSAs">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -287,13 +291,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAover">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-					 		<?php populateDropDownControls('year', $Year_array); ?>
+					 		<?php populateDropDownControls('year', $Year_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -314,13 +318,13 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAunder">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector_array); ?>
+							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $month_array); ?>
+							<?php populateDropDownControls('month', $month_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
-							<?php populateDropDownControls('year', $Year_array); ?>
+							<?php populateDropDownControls('year', $Year_array, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -351,7 +355,7 @@ function jg_table_gen($atts)
                 echo '<optgroup label = "States">';
                 if (!empty($fetch_state_name)): /** Loop through the $results and add each as a dropdown option */ 
                     foreach ($fetch_state_name as $result):
-                        $options1 .= sprintf("\t" . '<option value="%1$s">%1$s</option>' . "\n", $result->state_name);
+                        $options1 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->state_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->state_name);
                     endforeach;
                     /** Output the dropdown */
                     echo $options1;
@@ -362,13 +366,13 @@ function jg_table_gen($atts)
                 echo '<optgroup label = "MSAs">';
                 if (!empty($fetch_area_name)): /** Loop through the $results and add each as a dropdown option */ 
                     foreach ($fetch_area_name as $result):
-                        $options2 .= sprintf("\t" . '<option value="MSAs[%1$s]">%1$s</option>' . "\n", $result->area_name);
+                        $options2 .= sprintf("\t" . '<option value="MSAs[%1$s]"' . ($formValues['area'] === $result->area_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->area_name);
                     endforeach;
                     /** Output the dropdown */
                     echo $options2;
-                    echo '</optgroup>';
-                    echo '</select></div>';
                 endif;
+              	echo '</optgroup>';
+                echo '</select></div>';
                 
                 echo '<div class="col-sx-12 col-md-3">';
                 echo '<select name = "industrylist" id="select_industry" class="form-control">';
@@ -389,7 +393,7 @@ function jg_table_gen($atts)
                         $monthNum  = $result->Month;
                         $dateObj   = DateTime::createFromFormat('!m', $monthNum);
                         $monthName = $dateObj->format('F');
-                        $options .= sprintf("\t" . '<option value="%1$s">%1$s</option>' . "\n", $monthName);
+                        $options .= sprintf("\t" . '<option value="%1$s"' . ($formValues['month'] === $monthName ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $monthName);
                     endforeach;
                     /** Output the dropdown */
                     echo $options;
@@ -822,17 +826,19 @@ add_shortcode('jg-tables', 'jg_table_gen');
 add_shortcode('bc-tables', 'bc_table_gen');
 add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
-function populateDropDownControls($name, $dropdown_query)
+function populateDropDownControls($name, $dropdown_query, $formValues)
 {
+	echo '<pre>';
+	print_r($formValues);
+	echo '</pre>';
+
     $dropdown_complete = '<select name="' . $name . '" id = "' . $name . '" class="form-control">';
     foreach ($dropdown_query as $value) {
-        $dropdown_complete .= '<option value ="' . $value . '">' . $value . '</option>';
+        $dropdown_complete .= '<option value ="' . $value . '"' . ($formValues[$name] === $value ? ' selected ' : '' ) . '>' . $value . '</option>';
     }
     $dropdown_complete .= '</select>';
     echo $dropdown_complete;
 }
-
-
 
 function echo_jg_table_gen()
 {
