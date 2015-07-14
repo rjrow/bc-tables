@@ -154,9 +154,9 @@ function jg_table_gen($atts)
     	'msa_flag' => $msa_flag
     );
 
-    //echo '<pre>';
-	//print_r($formValues);
-	//echo '</pre>';
+    echo '<pre>';
+	print_r($formValues);
+	echo '</pre>';
 
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
@@ -828,9 +828,9 @@ add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
 function populateDropDownControls($name, $dropdown_query, $formValues)
 {
-	//echo '<pre>';
-	//print_r($formValues);
-	//echo '</pre>';
+	echo '<pre>';
+	print_r($formValues);
+	echo '</pre>';
 
     $dropdown_complete = '<select name="' . $name . '" id = "' . $name . '" class="form-control">';
     foreach ($dropdown_query as $value) {

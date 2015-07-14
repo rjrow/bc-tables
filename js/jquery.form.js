@@ -23,6 +23,7 @@ $(document).ready(function() {
   }
 
   function get_new_table(tableForm, tableType) {
+    //loading
     $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
 
     var formData = {
@@ -54,10 +55,6 @@ $(document).ready(function() {
     var area_set = $(select_option).val();
     var selectIndustry = $('#select_industry');
 
-    if(area_set.includes("MSAs")){
-      area_set = area_set.match(/[^[\]]+(?=])/g);
-    }
-    area_set = String(area_set);
     console.log('area_set: ' + area_set);
     selected_area = area_set;
     selectIndustry.html('<option>Loading</option>');
