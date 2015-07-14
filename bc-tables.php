@@ -174,18 +174,22 @@ function jg_table_gen($atts)
     $month     = "1";
     $monthName = date("F", strtotime($month));
 
-    $types = 	array(
-	    		"ytd" => "Year to Date",
-	    		"ann" => "Annual",
-	    		"mom" => "Month over Month",
-	    		"yoy" => "Year over Year"
-	    		);
+ $types_array =  array(
+		[0] => array(
+		       "ytd" => "Year to Date",
+		       "ann" => "Annual",
+		       "mom" => "Month over Month",
+		       "yoy" => "Year over Year"
+		       )
+	);
 
+/*
     $types_array = array(
 	    	"types" => $types
     	);
+*/
 
-    $types_array = createArray($types_array, "types");
+    $types_array = createArray($types_array, 'types');
 
 
     $sectors      = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
