@@ -22,7 +22,6 @@ $(document).ready(function() {
 
   }
 
-
   function get_new_table(tableForm, tableType) {
     $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
 
@@ -72,10 +71,10 @@ $(document).ready(function() {
         'area': selected_area
       },
       success: function(data) {
-
+        var defaultArea = 'Total Nonfarm';
         selectIndustry.html('');
         $.each(data, function(index, value){
-          selectIndustry.append('<option>' + data[index] + '</option>');
+          selectIndustry.append('<option' + (data[index] === defaultArea ? ' selected ' : '') + '>' + data[index] + '</option>');
         });
         selectIndustry.show();
       },
