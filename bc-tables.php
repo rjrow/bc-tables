@@ -60,7 +60,7 @@ function createArray($rows, $string_key)
 
 // Generate job growth tables shortcode function
 function jg_table_gen($atts)
-{   
+{
     ob_start();
     $table_type = isset($_POST['table_type']) ? $_POST['table_type'] : $atts['table_type'];
    	$form_controls =  isset($_POST['formcontrols']) ? false : true;
@@ -70,7 +70,7 @@ function jg_table_gen($atts)
     $DB_PASS = DB_PASS_jg;
     $DB_NAME = DB_NAME_jg;
     $DB_HOST = DB_HOST_jg;
-    
+
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
 
     // Setup object for generating queries
@@ -105,7 +105,7 @@ function jg_table_gen($atts)
             "col_state_name" => "state_name"
         )
     );
-    
+
     $colsQueries = Array(
         "yoy" => Array(
             "col_rank" => "rank",
@@ -136,7 +136,7 @@ function jg_table_gen($atts)
             "type_out" => "Annual"
         )
     );
-    
+
     // Setting variables to be initialized to default settings if they are not selected
     $month      = !isset($_POST['month']) ? 'January' : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
@@ -144,6 +144,7 @@ function jg_table_gen($atts)
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
+
 
     $formValues = array(
     	'month' => $month,
@@ -153,6 +154,7 @@ function jg_table_gen($atts)
     	'type' => $type,
     	'msa_flag' => $msa_flag
     );
+
 
     echo '<pre>';
 	print_r($formValues);
@@ -166,34 +168,48 @@ function jg_table_gen($atts)
     $col_job_growth = $colsQueries[$type]['col_job_growth'];
     $col_value      = $colsQueries[$type]['col_value'];
     $type_out       = $colsQueries[$type]['type_out'];
-    
-    
+
+
     // Update Month so that we are pulling in correct data about current month (query table, date_ref_table)
     $month     = "1";
     $monthName = date("F", strtotime($month));
-    
+
+    $types = 	array(
+	    		"ytd" => "Year to Date",
+	    		"ann" => "Annual",
+	    		"mom" => "Month over Month",
+	    		"yoy" => "Year over Year"
+	    		);
+
+    $types_array = array(
+	    	"types" => $types
+    	);
+
+    $types_array = createArray($types_array, "types");
+
+
     $sectors      = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sector_array = array(
         "industry" => $sectors
     );
 
     $sector_array = createArray($sector_array, 'industry_name');
-    
+
     $months = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
     sort($months);
     $month_array = array(
         "Month" => $months
     );
     $month_array = createArray($month_array, 'month');
-    
+
     $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
     $year_array = array(
         "year" => $years
     );
     $year_array = createArray($year_array, 'year');
-    
+
     switch ($table_type) {
-        
+
         case "CSR":
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
@@ -209,6 +225,9 @@ function jg_table_gen($atts)
            	?>
 				<form method="post" class="bc-table" data-table-type="CSR">
 					<div class="row">
+						<div class="col-xs-12 col-md-4">
+							<?php populateDropDownControls('types'   , $types_array , $formValues); ?>
+						</div>
 						<div class="col-xs-12 col-md-4">
 							<?php populateDropDownControls('industry', $sector_array, $formValues); ?>
 						</div>
@@ -349,11 +368,11 @@ function jg_table_gen($atts)
 	        	<?php
                 $value      = $_POST["area"];
                 $value_area = $_POST["area"];
-                
+
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 $fetch_state_name = $newdb->get_results('SELECT DISTINCT state_name FROM state_rankings ORDER BY state_name ASC;');
                 echo '<optgroup label = "States">';
-                if (!empty($fetch_state_name)): /** Loop through the $results and add each as a dropdown option */ 
+                if (!empty($fetch_state_name)): /** Loop through the $results and add each as a dropdown option */
                     foreach ($fetch_state_name as $result):
                         $options1 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->state_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->state_name);
                     endforeach;
@@ -361,10 +380,10 @@ function jg_table_gen($atts)
                     echo $options1;
                     echo '</optgroup>';
                 endif;
-                
+
                 $fetch_area_name = $newdb->get_results('SELECT DISTINCT area_name FROM msa_rankings  WHERE area_name LIKE "%,%" ORDER BY area_name ASC;');
                 echo '<optgroup label = "MSAs">';
-                if (!empty($fetch_area_name)): /** Loop through the $results and add each as a dropdown option */ 
+                if (!empty($fetch_area_name)): /** Loop through the $results and add each as a dropdown option */
                     foreach ($fetch_area_name as $result):
                         $options2 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->area_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->area_name);
                     endforeach;
@@ -373,7 +392,7 @@ function jg_table_gen($atts)
                 endif;
               	echo '</optgroup>';
                 echo '</select></div>';
-                
+
                 echo '<div class="col-sx-12 col-md-3">';
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 //$value      = $_POST["industry"];
@@ -381,13 +400,13 @@ function jg_table_gen($atts)
                 //$newdb      = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 echo '</select>';
                 echo '</div>';
-                
+
                 echo '<div class="col-sx-12 col-md-3">';
                 echo '<select name="month" class = "form-control">';
                 $newdb           = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 $fetch_year_name = $newdb->get_results('SELECT DISTINCT CAST(Month AS UNSIGNED) AS Month FROM state_rankings ORDER BY CAST(Month AS UNSIGNED) ASC;');
-                
-                if (!empty($fetch_year_name)): /** Loop through the $results and add each as a dropdown option */ 
+
+                if (!empty($fetch_year_name)): /** Loop through the $results and add each as a dropdown option */
                     $options = '';
                     foreach ($fetch_year_name as $result):
                         $monthNum  = $result->Month;
@@ -430,9 +449,9 @@ function jg_table_gen($atts)
 			    <th># of Jobs</th>
 		        </tr></thead>	<tbody>';
     }
-    
+
     tablePopulate($rows);
-    
+
     $output = ob_get_clean();
     return $output;
 }
@@ -441,23 +460,23 @@ function jg_table_gen($atts)
 function bc_table_gen($atts)
 {
     ob_start();
-    
+
     //Grab years for table headers/captions
     $curr_year = date("Y");
     $next_year = $curr_year + 1;
-    
+
     $state = $atts['state'];
     $state = strtolower($state);
-    
+
     // Establish database connection for bc tables. bc tables are in a different db than jg. Different products.
     $DB_USER = DB_USER_wbc;
     $DB_PASS = DB_PASS_wbc;
     $DB_NAME = DB_NAME_wbc;
     $DB_HOST = DB_HOST_wbc;
-    
+
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-    
-    
+
+
     if ($state == "nevada") {
         $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
 						 Q4A1, Q5A1
@@ -466,7 +485,7 @@ function bc_table_gen($atts)
 						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 						CASE WHEN Organization = "Old Consensus" THEN 0 END,
  						Organization ASC;');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
@@ -477,9 +496,9 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
-        
+
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_ggr, Q3A2,
 						 Q4A2, Q5A2
 						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -487,7 +506,7 @@ function bc_table_gen($atts)
 						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 						CASE WHEN Organization = "Old Consensus" THEN 0 END,
  						Organization ASC;');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
@@ -498,10 +517,10 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		       </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
     }
-    
+
     if ($state == "new mexico" OR $state == "oregon") {
         $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_mfg, Q3A1, Q4A1, Q5A1
 					FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -509,7 +528,7 @@ function bc_table_gen($atts)
 					CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 					CASE WHEN Organization = "Old Consensus" THEN 0 END,
 						Organization ASC;');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
 			  <col span = "5" />
@@ -520,17 +539,17 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
-        
-        
+
+
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
 						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
 						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
 						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 						CASE WHEN Organization = "Old Consensus" THEN 0 END,
  						Organization ASC;');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
@@ -541,10 +560,10 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 		       </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
     }
-    
+
     if ($state == "montana") {
         $rows = $newdb->get_results('SELECT Organization,Q1A1, Q3A1, Q4A1, Q5A1
 				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -552,7 +571,7 @@ function bc_table_gen($atts)
 				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 				CASE WHEN Organization = "Old Consensus" THEN 0 END,
 				Organization ASC;');
-        
+
         echo '<table class="table table-striped table-hover sortable">
 			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
@@ -563,14 +582,14 @@ function bc_table_gen($atts)
 		      <th>Single-Family Housing Permits</th>
 		      </tr></thead><tbody>';
         tablePopulate($rows);
-        
+
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q3A2, Q4A2, Q5A2
 				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
 				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
 				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 				CASE WHEN Organization = "Old Consensus" THEN 0 END,
 				Organization ASC;');
-        
+
         echo '<table class="table table-striped table-hover sortable">
 			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
 			  <col span = "5" />
@@ -588,7 +607,7 @@ function bc_table_gen($atts)
 				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 				CASE WHEN Organization = "Old Consensus" THEN 0 END,
 				Organization ASC;');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <col span = "5" />
 			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
@@ -600,14 +619,14 @@ function bc_table_gen($atts)
 		      <th>Population Growth</th>
 		      <th>Single-Family Housing Permits</th>
 	          </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2
 						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
 						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
 						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
 	 					Organization ASC;');
-        
+
         echo '<table class="table table-striped table-hover sortable">
 		      <col span = "5" />
 			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
@@ -620,7 +639,7 @@ function bc_table_gen($atts)
 	          </tr></thead><tbody>';
         tablePopulate($rows);
     }
-    
+
     $output = ob_get_clean();
     return $output;
 }
@@ -628,15 +647,15 @@ function bc_table_gen($atts)
 function gpbc_table_gen($atts)
 {
     ob_start();
-    
+
     $table_type = $atts['table_type'];
-    
+
     // DB Connection
     $DB_USER = DB_USER_wbc;
     $DB_PASS = DB_PASS_wbc;
     $DB_NAME = DB_NAME_wbc;
     $DB_HOST = DB_HOST_wbc;
-    
+
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
     //Economic forecast
     if ($table_type == "economic") {
@@ -648,9 +667,9 @@ function gpbc_table_gen($atts)
 										FORMAT(Q5,1),
 										FORMAT(Q6,1)  FROM gpbc_deployment
 										WHERE  year = "2015";');
-        
+
         echo '<p align = "left"><b>First Quarter, 2015</b><p>';
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 		<caption>' . $curr_year . ' Forecast Annual Percentage Change</caption>
 		<col span = "5" />
@@ -662,11 +681,11 @@ function gpbc_table_gen($atts)
 		      <th>Manufacturing Empl.</th>
 		      <th>Construction Empl.</th>
 	              </tr></thead><tbody>';
-        
-        
+
+
         tablePopulate($rows);
-        
-        
+
+
         $rows = $newdb->get_results('SELECT organization,
 										FORMAT(Q1,1),
 										FORMAT(Q2,1),
@@ -675,7 +694,7 @@ function gpbc_table_gen($atts)
 										FORMAT(Q5,1),
 										FORMAT(Q6,1)  FROM gpbc_deployment
 										WHERE  year = "2016";');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 		<caption>' . $next_year . ' Forecast Annual Percentage Change</caption>
 		<col span = "5" />
@@ -687,18 +706,18 @@ function gpbc_table_gen($atts)
 		      <th>Manufacturing Empl.</th>
 		      <th>Construction Empl.</th>
 	              </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
-        
+
     }
-    
-    
+
+
     //Construction forecast
     if ($table_type == "office") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_office where year = "2015"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			<caption>' . $curr_year . ' Office Forecast </caption>
 			<col span = "4" />
@@ -708,13 +727,13 @@ function gpbc_table_gen($atts)
 			      <th>Vacancy (Year End %)</th>
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
-        
+
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_office where year = "2016"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			<caption>' . $next_year . ' Office Forecast </caption>
 			<col span = "4" />
@@ -724,18 +743,18 @@ function gpbc_table_gen($atts)
 			      <th>Vacancy (Year End %)</th>
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
-        
+
         tablePopulate($rows);
-        
+
     }
-    
-    
+
+
     if ($table_type == "residential") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																 FORMAT(Q3,1),
 																 FORMAT(Q4,1) from gpbc_residential where year = "2015"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 				<caption>' . $curr_year . ' Residential Forecast </caption>
 				<col span = "5" />
@@ -747,12 +766,12 @@ function gpbc_table_gen($atts)
 				      <th>Apartment Absorpotion</th>
 			              </tr></thead><tbody>';
         tablePopulate($rows);
-        
+
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																 FORMAT(Q3,1),
 																 FORMAT(Q4,1) from gpbc_residential where year = "2016"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 				<caption>' . $next_year . ' Residential Forecast </caption>
 				<col span = "5" />
@@ -764,15 +783,15 @@ function gpbc_table_gen($atts)
 				      <th>Apartment Absorpotion</th>
 			              </tr></thead><tbody>';
         tablePopulate($rows);
-        
+
     }
-    
-    
+
+
     if ($table_type == "industrial") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption>' . $curr_year . ' Industrial Forecast </caption>
 			  <col span = "4" />
@@ -783,11 +802,11 @@ function gpbc_table_gen($atts)
 			      <th>Absorpotion</th>
 		              </tr></thead><tbody>';
         tablePopulate($rows);
-        
+
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
-        
+
         echo '<table class= "table table-striped table-hover sortable">
 			  <caption>' . $next_year . ' Industrial Forecast </caption>
 			  <col span = "4" />
@@ -799,11 +818,11 @@ function gpbc_table_gen($atts)
 		              </tr></thead><tbody>';
         tablePopulate($rows);
     }
-    
-    
+
+
     if ($table_type == "historical") {
         $rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
-        
+
         echo '<table class="table table-striped table-hover sortable">
 			  <col span="6" />
 			  <thead><tr><th></th>
@@ -814,10 +833,10 @@ function gpbc_table_gen($atts)
 			  <th>Manufacturing Employment (thousands)</th>
 			  <th>Construction Employment (thousands)</th>
 			  <th>Unemployment Rate</th>';
-        
+
         tablePopulate($rows);
     }
-    
+
     $output = ob_get_clean();
     return $output;
 }
@@ -839,6 +858,7 @@ function populateDropDownControls($name, $dropdown_query, $formValues)
     $dropdown_complete .= '</select>';
     echo $dropdown_complete;
 }
+
 
 function echo_jg_table_gen()
 {
