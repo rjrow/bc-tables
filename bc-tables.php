@@ -345,10 +345,10 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="Historical">
 	            	 <div class="row">
 	            	     <div class="col-xs-12 col-md-4">
-	             	        <select name = "arealist" class="form-control">
+	             	        <select name = "area" class="form-control">
 	        	<?php
-                $value      = $_POST["arealist"];
-                $value_area = $_POST["arealist"];
+                $value      = $_POST["area"];
+                $value_area = $_POST["area"];
                 
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 $fetch_state_name = $newdb->get_results('SELECT DISTINCT state_name FROM state_rankings ORDER BY state_name ASC;');
@@ -366,7 +366,7 @@ function jg_table_gen($atts)
                 echo '<optgroup label = "MSAs">';
                 if (!empty($fetch_area_name)): /** Loop through the $results and add each as a dropdown option */ 
                     foreach ($fetch_area_name as $result):
-                        $options2 .= sprintf("\t" . '<option value="MSAs[%1$s]"' . ($formValues['area'] === $result->area_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->area_name);
+                        $options2 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->area_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->area_name);
                     endforeach;
                     /** Output the dropdown */
                     echo $options2;
@@ -375,15 +375,15 @@ function jg_table_gen($atts)
                 echo '</select></div>';
                 
                 echo '<div class="col-sx-12 col-md-3">';
-                echo '<select name = "industrylist" id="select_industry" class="form-control">';
-                //$value      = $_POST["industrylist"];
+                echo '<select name = "industry" id="select_industry" class="form-control">';
+                //$value      = $_POST["industry"];
                 //$table_name = '';
                 //$newdb      = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 echo '</select>';
                 echo '</div>';
                 
                 echo '<div class="col-sx-12 col-md-3">';
-                echo '<select name="monthlist" class = "form-control">';
+                echo '<select name="month" class = "form-control">';
                 $newdb           = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
                 $fetch_year_name = $newdb->get_results('SELECT DISTINCT CAST(Month AS UNSIGNED) AS Month FROM state_rankings ORDER BY CAST(Month AS UNSIGNED) ASC;');
                 
@@ -844,9 +844,9 @@ function echo_jg_table_gen()
 {
     $custom_args = array(
         'table_type' => $_POST['table_type'],
-        'arealist' => $_POST['arealist'],
-        'industrylist' => $_POST['industrylist'],
-        'monthlist' => $_POST['monthlist']
+        'area' => $_POST['area'],
+        'industry' => $_POST['industry'],
+        'month' => $_POST['month']
     );
     echo jg_table_gen($custom_args);
 }

@@ -2,15 +2,15 @@ $(document).ready(function() {
   if ($('.bc-table')) {
 
     var area_is_set = false;
-    var area_set = document.getElementsByName('arealist')[0].value;
+    var area_set = document.getElementsByName('area')[0].value;
 
     if (area_set !== "") {
       area_is_set = true;
       console.log('area_is_set: ' + area_is_set);
-      get_industry_list(document.getElementsByName("arealist"), area_is_set);
+      get_industry_list(document.getElementsByName("area"), area_is_set);
     }
 
-    $('.bc-table select[name=arealist]').change(function() {
+    $('.bc-table select[name=area]').change(function() {
       get_industry_list(this, true);
     });
 
@@ -26,12 +26,12 @@ $(document).ready(function() {
     $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
 
     var formData = {
-        'action'          : 'echo_jg_table_gen',
-        'table_type'      : tableType,
-        'formcontrols'    : false,
-        'area'        : $('select[name=arealist]', tableForm).val(),
-        'industry'    : $('select[name=industrylist]', tableForm).val(),
-        'month'       : $('select[name=monthlist]', tableForm).val()
+        'action'        : 'echo_jg_table_gen',
+        'table_type'    : tableType,
+        'formcontrols'  : false,
+        'area'          : $('select[name=area]', tableForm).val(),
+        'industry'      : $('select[name=industry]', tableForm).val(),
+        'month'         : $('select[name=month]', tableForm).val()
     };
 
     $.ajax({
@@ -39,7 +39,6 @@ $(document).ready(function() {
       type: 'POST',
       data: formData,
       success: function(data) {
-        $table.show('fast');
         $table.replaceWith(data);
       },
       error: function(errorThrown) {
