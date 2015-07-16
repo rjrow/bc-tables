@@ -12,16 +12,38 @@ $(document).ready(function() {
     });
   }
 
-/*
   if ($('.wbc-table')) {
-
     $('.wbc-table').submit(function(event){
       event.preventDefault();
-      var table = $(this).attr('')
-    })
-
+      get_wbc_table(this);
+    });
   }
-*/
+
+
+function get_wbc_table(tableForm) {
+
+  $table = $(tableForm).siblings('table').html('<tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr>');
+    var formData = {
+      'action': 'echo_bc_table_gen',
+      'state' : $('select[name=states]', tableForm).val(),
+      'formcontrols' : false
+    };
+
+    console.log(formData);
+    $.ajax({
+      url: ajaxurl,
+      type: 'POST',
+      data: formData,
+      success: function(data) {
+        //console.log(data);
+        $table.replaceWith(data);
+      },
+      error: function(errorThrown) {
+        alert('error');
+        console.log(errorThrown);
+      }
+    });
+}
 
 
 
@@ -65,7 +87,7 @@ $(document).ready(function() {
       url: ajaxurl,
       data: {
         'action': 'my_action',
-        'area': area_set
+        'area': area_set,
       },
       success: function(data) {
         var defaultArea = 'Total Nonfarm';

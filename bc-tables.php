@@ -179,8 +179,6 @@ function jg_table_gen($atts)
     $sectors    = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sectors    = clean_up_array($sectors, 'industry_name');
 
-#    $months     = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
-
     $months = array("0" => "January",
         "1" => "February",
         "2" => "March",
@@ -445,9 +443,13 @@ function jg_table_gen($atts)
 }
 
 //Generate wbc tables shortcode function
-function bc_table_gen($atts)
+function bc_table_gen()
 {
+
     ob_start();
+
+    $form_controls =  isset($_POST['formcontrols']) ? false : true;
+    $state       = !isset($_POST['state']) ? "Arizona" : $_POST['state'];
 
     $states = array(
     "arizona" => "Arizona",
@@ -467,30 +469,27 @@ function bc_table_gen($atts)
         'state' => $states
         );
 
-/*
-?>
 
-                    <form method="post" class="wbc-table">
-                    <div class="row">
-                        <div class="col-xs-12 col-md-4">
-                            <?php populateDropDownControls('types', $states , $formValues); ?>
+if($form_controls)
+{
+    ?>
+                        <form method="post" class="wbc-table">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-4">
+                                <?php populateDropDownControls('states', $states , $formValues); ?>
+                            </div>
+                            <div class="col-xs-12 col-md-2">
+                                <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                            </div>
                         </div>
-                        <div class="col-xs-12 col-md-2">
-                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-                        </div>
-                    </div>
-                </form>
-
-<?php
-*/
+                    </form>
+    <?php
+}
 
 
     //Grab years for table headers/captions
     $curr_year = date("Y");
     $next_year = $curr_year + 1;
-
-    $state = $atts['state'];
-    $state = strtolower($state);
 
     // Establish database connection for bc tables. bc tables are in a different db than jg. Different products.
     $DB_USER = DB_USER_wbc;
@@ -500,167 +499,172 @@ function bc_table_gen($atts)
 
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
 
-    if ($state == "nevada") {
-        $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
-						 Q4A1, Q5A1
-						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Old Consensus" THEN 0 END,
- 						Organization ASC;');
+    switch($state){
+        case "nevada":
+            $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
+    						 Q4A1, Q5A1
+    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
+     						Organization ASC;');
 
-        echo '<table class= "table table-striped table-hover sortable">
-			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-			  <th>Gross Gaming Revenue</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		      </tr></thead><tbody>';
+            echo '<table class= "table table-striped table-hover sortable">
+    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th>Gross Gaming Revenue</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		      </tr></thead><tbody>';
 
-        table_populate($rows);
+            table_populate($rows);
 
-        $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_ggr, Q3A2,
-						 Q4A2, Q5A2
-						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Old Consensus" THEN 0 END,
- 						Organization ASC;');
+            $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_ggr, Q3A2,
+    						 Q4A2, Q5A2
+    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
+     						Organization ASC;');
 
-        echo '<table class= "table table-striped table-hover sortable">
-			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-			  <th>Gross Gaming Revenue</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		       </tr></thead><tbody>';
+            echo '<table class= "table table-striped table-hover sortable">
+    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th>Gross Gaming Revenue</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		       </tr></thead><tbody>';
 
-        table_populate($rows);
-    }
+            table_populate($rows);
 
-    if ($state == "new mexico" OR $state == "oregon") {
-        $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_mfg, Q3A1, Q4A1, Q5A1
-					FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-					CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-					CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-					CASE WHEN Organization = "Old Consensus" THEN 0 END,
-						Organization ASC;');
+        case "new mexico" :
+        case "oregon"     :
+            $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_mfg, Q3A1, Q4A1, Q5A1
+    					FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    					CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    					CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    					CASE WHEN Organization = "Old Consensus" THEN 0 END,
+    						Organization ASC;');
 
-        echo '<table class= "table table-striped table-hover sortable">
-			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-			  <th> Manufacturing Employment</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		      </tr></thead><tbody>';
+            echo '<table class= "table table-striped table-hover sortable">
+    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th> Manufacturing Employment</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		      </tr></thead><tbody>';
 
-        table_populate($rows);
+            table_populate($rows);
 
-        $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
-						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Old Consensus" THEN 0 END,
- 						Organization ASC;');
+            $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
+    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
+     						Organization ASC;');
 
-        echo '<table class= "table table-striped table-hover sortable">
-			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-			  <th> Manufacturing Employment</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		       </tr></thead><tbody>';
+            echo '<table class= "table table-striped table-hover sortable">
+    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th> Manufacturing Employment</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		       </tr></thead><tbody>';
 
-        table_populate($rows);
-    }
+            table_populate($rows);
 
-    if ($state == "montana") {
-        $rows = $newdb->get_results('SELECT Organization,Q1A1, Q3A1, Q4A1, Q5A1
-				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-				Organization ASC;');
+        case "montana":
+            $rows = $newdb->get_results('SELECT Organization,Q1A1, Q3A1, Q4A1, Q5A1
+    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
+    				Organization ASC;');
 
-        echo '<table class="table table-striped table-hover sortable">
-			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		      </tr></thead><tbody>';
-        table_populate($rows);
+            echo '<table class="table table-striped table-hover sortable">
+    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		      </tr></thead><tbody>';
 
-        $rows = $newdb->get_results('SELECT Organization, Q1A2, Q3A2, Q4A2, Q5A2
-				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-				Organization ASC;');
+            table_populate($rows);
 
-        echo '<table class="table table-striped table-hover sortable">
-			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-			  <col span = "5" />
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-		       </tr></thead><tbody>';
-        table_populate($rows);
-    } else {
-        $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1
-				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-				Organization ASC;');
+            $rows = $newdb->get_results('SELECT Organization, Q1A2, Q3A2, Q4A2, Q5A2
+    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
+    				Organization ASC;');
 
-        echo '<table class= "table table-striped table-hover sortable">
-			  <col span = "5" />
-			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-			  <thead><tr>
-			  <th></th>
-			  <th>Current $ Personal Income</th>
-			  <th>Retail Sales</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-	          </tr></thead><tbody>';
+            echo '<table class="table table-striped table-hover sortable">
+    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+    			  <col span = "5" />
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    		       </tr></thead><tbody>';
 
-        table_populate($rows);
-        $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2
-						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-	 					Organization ASC;');
+            table_populate($rows);
 
-        echo '<table class="table table-striped table-hover sortable">
-		      <col span = "5" />
-			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-			  <thead><tr><th></th>
-			  <th>Current $ Personal Income</th>
-			  <th>Retail Sales</th>
-		      <th>Wage & Salary Employment</th>
-		      <th>Population Growth</th>
-		      <th>Single-Family Housing Permits</th>
-	          </tr></thead><tbody>';
-        table_populate($rows);
-    }
+        default:
+            $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1
+    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
+    				Organization ASC;');
+
+            echo '<table class= "table table-striped table-hover sortable">
+    			  <col span = "5" />
+    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+    			  <thead><tr>
+    			  <th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th>Retail Sales</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    	          </tr></thead><tbody>';
+
+            table_populate($rows);
+
+            $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2
+    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+    	 					Organization ASC;');
+
+            echo '<table class="table table-striped table-hover sortable">
+    		      <col span = "5" />
+    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+    			  <thead><tr><th></th>
+    			  <th>Current $ Personal Income</th>
+    			  <th>Retail Sales</th>
+    		      <th>Wage & Salary Employment</th>
+    		      <th>Population Growth</th>
+    		      <th>Single-Family Housing Permits</th>
+    	          </tr></thead><tbody>';
+
+            table_populate($rows);
+        }
 
     $output = ob_get_clean();
     return $output;
@@ -889,8 +893,19 @@ function echo_jg_table_gen()
     echo jg_table_gen($custom_args);
 }
 
+function echo_bc_table_gen()
+{
+    $custom_args = array(
+        'state' => $_POST['state']);
+    echo bc_table_gen($custom_args);
+}
+
 add_action('wp_ajax_echo_jg_table_gen', 'echo_jg_table_gen');
 add_action('wp_ajax_nopriv_echo_jg_table_gen', 'echo_jg_table_gen');
+
+add_action('wp_ajax_echo_bc_table_gen', 'echo_bc_table_gen');
+add_action('wp_ajax_nopriv_echo_bc_table_gen', 'echo_bc_table_gen');
+
 
 function bctables_js_enqueue()
 {
