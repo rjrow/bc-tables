@@ -10,8 +10,20 @@ $(document).ready(function() {
       var tableType = $(this).attr('data-table-type');
       get_new_table(this, tableType);
     });
+  }
+
+/*
+  if ($('.wbc-table')) {
+
+    $('.wbc-table').submit(function(event){
+      event.preventDefault();
+      var table = $(this).attr('')
+    })
 
   }
+*/
+
+
 
   function get_new_table(tableForm, tableType) {
     //loading
@@ -45,9 +57,9 @@ $(document).ready(function() {
     var area_set = $(select_option).val();
     var selectIndustry = $('#select_industry');
     selectIndustry.html('<option>Loading</option>');
-    
+
     console.log('area_set: ' + area_set);
-    
+
     $.ajax({
       dataType: 'json',
       url: ajaxurl,

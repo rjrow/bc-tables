@@ -27,7 +27,7 @@ function get_industry_list_by_area($area = 'Total Nonfarm')
             die();
         }else{
             return $json_industries;
-        }   
+        }
     } else {
         return 'Value is null - goood';
     }
@@ -140,12 +140,13 @@ function jg_table_gen($atts)
     );
 
     // Setting variables to be initialized to default settings if they are not selected
-    $month      = !isset($_POST['month']) ? 'January' : $_POST['month'];
+    $month      = !isset($_POST['month']) ? '1' : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
     $industry 	= !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
+
 
     $formValues = array(
     	'month' => $month,
@@ -156,6 +157,14 @@ function jg_table_gen($atts)
     	'msa_flag' => $msa_flag
     );
 
+    $types =  array(
+       "ytd" => "Year to Date",
+       "ann" => "Annual",
+       "mom" => "Month over Month",
+       "yoy" => "Year over Year"
+    );
+
+
     $table          = $tableQueries[$table_type]['table'];
     $table_us       = $tableQueries[$table_type]['table_us'];
     $col_state_name = $tableQueries[$table_type]['col_state_name'];
@@ -165,32 +174,34 @@ function jg_table_gen($atts)
     $col_value      = $colsQueries[$type]['col_value'];
     $type_out       = $colsQueries[$type]['type_out'];
 
-
     // Update Month so that we are pulling in correct data about current month (query table, date_ref_table)
-    $month     = "1";
-    $monthName = date("F", strtotime($month));
-
-    $types =  array(
-	   "ytd" => "Year to Date",
-	   "ann" => "Annual",
-	   "mom" => "Month over Month",
-	   "yoy" => "Year over Year"
-	);
 
     $sectors    = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sectors    = clean_up_array($sectors, 'industry_name');
 
-    $months     = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
-    $months     = clean_up_array($months, 'Month');
-    sort($months);
+#    $months     = $newdb->get_results('SELECT DISTINCT Month FROM state_rankings;', ARRAY_A);
+
+    $months = array("0" => "January",
+        "1" => "February",
+        "2" => "March",
+        "3" => "April",
+        "4" => "May",
+        "5" => "June",
+        "6" => "July",
+        "7" => "August",
+        "8" => "September",
+        "9" => "October",
+        "10" => "November",
+        "11" => "December");
+
 
     $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
     $years      = clean_up_array($years, 'year');
     sort($years);
 
     switch ($table_type) {
-
         case "CSR":
+            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -220,6 +231,7 @@ function jg_table_gen($atts)
 			endif;
             break;
         case "ASR":
+            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -234,11 +246,14 @@ function jg_table_gen($atts)
 			?>
 				<form method="post" class="bc-table" data-table-type="ASR">
 					<div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
 						<div class="col-xs-12 col-md-4">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('month', $month, $formValues); ?>
+							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-2">
 							<?php populateDropDownControls('year', $years, $formValues); ?>
@@ -252,16 +267,21 @@ function jg_table_gen($atts)
 			endif;
             break;
         case "RoMSAs":
+            $month = date("n", strtotime($month));
             #if msa == over || msa == all || msa == under :: do stuff
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
 							FORMAT(value,2)
 							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 							AND Year = "' . $year . '"
 							AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
+
 			if ($form_controls):
 			?>
 				<form method="post" class="bc-table" data-table-type="RoMSAs">
 					<div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
 						<div class="col-xs-12 col-md-4">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
@@ -280,6 +300,7 @@ function jg_table_gen($atts)
 			endif;
             break;
         case "MSAover":
+            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 									FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 									FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -307,6 +328,7 @@ function jg_table_gen($atts)
 			endif;
             break;
         case "MSAunder":
+            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -317,7 +339,7 @@ function jg_table_gen($atts)
 				<form method="post" class="bc-table" data-table-type="MSAunder">
 					<div class="row">
 						<div class="col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sector, $formValues); ?>
+							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
 						<div class="col-xs-12 col-md-3">
 							<?php populateDropDownControls('month', $months, $formValues); ?>
@@ -334,12 +356,14 @@ function jg_table_gen($atts)
 			endif;
             break;
         case "Historical":
+            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
 	                        FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
 	                        FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
 	                        AND ' . $col_state_name . ' = "' . $area . '"
 	                        AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
-            if ($form_controls) {
+
+           if ($form_controls) {
             	?>
 				<form method="post" class="bc-table" data-table-type="Historical">
 	            	 <div class="row">
@@ -376,28 +400,12 @@ function jg_table_gen($atts)
                 if($fetch_industries !== NULL){
                     foreach ($fetch_industries as $key => $value) {
                         echo '<option' . ($formValues['industry'] === $value ? ' selected ' : '' ) . '>' . $value. '</option>';
-                    }                    
+                    }
                 }
                 echo '</select>';
                 echo '</div>';
-
                 echo '<div class="col-sx-12 col-md-3">';
-                echo '<select name="month" class = "form-control">';
-                $newdb           = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-                $fetch_year_name = $newdb->get_results('SELECT DISTINCT CAST(Month AS UNSIGNED) AS Month FROM state_rankings ORDER BY CAST(Month AS UNSIGNED) ASC;');
-
-                if (!empty($fetch_year_name)): /** Loop through the $results and add each as a dropdown option */
-                    $options = '';
-                    foreach ($fetch_year_name as $result):
-                        $monthNum  = $result->Month;
-                        $dateObj   = DateTime::createFromFormat('!m', $monthNum);
-                        $monthName = $dateObj->format('F');
-                        $options .= sprintf("\t" . '<option value="%1$s"' . ($formValues['month'] === $monthName ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $monthName);
-                    endforeach;
-                    /** Output the dropdown */
-                    echo $options;
-                endif;
-                echo '</select>';
+                populateDropDownControls('month', $months, $formValues);
                 echo '</div>';
                 echo '<div class="col-sm-12 col-md-2">';
                 echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
@@ -441,6 +449,42 @@ function bc_table_gen($atts)
 {
     ob_start();
 
+    $states = array(
+    "arizona" => "Arizona",
+    "california" => "California",
+    "colorado" => "Colorado",
+    "idaho" => "Idaho",
+    "montana" => "Montana",
+    "nevada" => "Nevada",
+    "new mexico" => "New Mexico",
+    "oregon" => "Oregon",
+    "texas" => "Texas",
+    "utah" => "Utah",
+    "washington" => "Washington",
+    "wyoming" => "Wyoming");
+
+    $formValues = array(
+        'state' => $states
+        );
+
+/*
+?>
+
+                    <form method="post" class="wbc-table">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <?php populateDropDownControls('types', $states , $formValues); ?>
+                        </div>
+                        <div class="col-xs-12 col-md-2">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </form>
+
+<?php
+*/
+
+
     //Grab years for table headers/captions
     $curr_year = date("Y");
     $next_year = $curr_year + 1;
@@ -455,7 +499,6 @@ function bc_table_gen($atts)
     $DB_HOST = DB_HOST_wbc;
 
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-
 
     if ($state == "nevada") {
         $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
@@ -521,7 +564,6 @@ function bc_table_gen($atts)
 		      </tr></thead><tbody>';
 
         table_populate($rows);
-
 
         $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
 						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
