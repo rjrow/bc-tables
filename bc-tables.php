@@ -214,13 +214,13 @@ function jg_table_gen($atts)
            	?>
 				<form method="post" class="bc-table" data-table-type="CSR">
 					<div class="row">
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-5">
 							<?php populateDropDownControls('types', $types , $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-5">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-2">
 							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
 						</div>
 					</div>
@@ -244,19 +244,19 @@ function jg_table_gen($atts)
 			?>
 				<form method="post" class="bc-table" data-table-type="ASR">
 					<div class="row">
-                        <div class="col-xs-12 col-md-4">
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('types', $types , $formValues); ?>
                         </div>
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-3">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-2">
 							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
 						</div>
 					</div>
@@ -277,19 +277,19 @@ function jg_table_gen($atts)
 			?>
 				<form method="post" class="bc-table" data-table-type="RoMSAs">
 					<div class="row">
-                        <div class="col-xs-12 col-md-4">
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('types', $types , $formValues); ?>
                         </div>
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-3">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
 						</div>
 					</div>
@@ -308,16 +308,16 @@ function jg_table_gen($atts)
 			?>
 				<form method="post" class="bc-table" data-table-type="MSAover">
 					<div class="row">
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-4">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-3">
+						<div class="form-group col-xs-12 col-md-3">
 							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-3">
+						<div class="form-group col-xs-12 col-md-3">
 					 		<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
 						</div>
 					</div>
@@ -336,16 +336,16 @@ function jg_table_gen($atts)
            	?>
 				<form method="post" class="bc-table" data-table-type="MSAunder">
 					<div class="row">
-						<div class="col-xs-12 col-md-4">
+						<div class="form-group col-xs-12 col-md-4">
 							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-3">
+						<div class="form-group col-xs-12 col-md-3">
 							<?php populateDropDownControls('month', $months, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-3">
+						<div class="form-group col-xs-12 col-md-3">
 							<?php populateDropDownControls('year', $years, $formValues); ?>
 						</div>
-						<div class="col-xs-12 col-md-2">
+						<div class="form-group col-xs-12 col-md-2">
 							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
 						</div>
 					</div>
@@ -365,7 +365,7 @@ function jg_table_gen($atts)
             	?>
 				<form method="post" class="bc-table" data-table-type="Historical">
 	            	 <div class="row">
-	            	     <div class="col-xs-12 col-md-4">
+	            	     <div class="form-group col-xs-12 col-md-4">
 	             	        <select name = "area" class="form-control">
 	        	<?php
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
@@ -392,7 +392,7 @@ function jg_table_gen($atts)
               	echo '</optgroup>';
                 echo '</select></div>';
 
-                echo '<div class="col-sx-12 col-md-3">';
+                echo '<div class="form-group col-sx-12 col-md-3">';
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 $fetch_industries = get_industry_list_by_area($area);
                 if($fetch_industries !== NULL){
@@ -402,10 +402,10 @@ function jg_table_gen($atts)
                 }
                 echo '</select>';
                 echo '</div>';
-                echo '<div class="col-sx-12 col-md-3">';
+                echo '<div class="form-group col-sx-12 col-md-3">';
                 populateDropDownControls('month', $months, $formValues);
                 echo '</div>';
-                echo '<div class="col-sm-12 col-md-2">';
+                echo '<div class="form-group col-sm-12 col-md-2">';
                 echo '<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>';
                 echo '</div>';
                 echo '</div>';
@@ -415,25 +415,23 @@ function jg_table_gen($atts)
     }
     // Create tables which will be populated, only historical differs from the others hence the if statement
     if ($table_type == "Historical") {
-        echo '<table class= "table table-striped table-hover sortable" align = "center">
-				<col span = "5"/>
+        echo '<table class="table table-striped table-hover sortable" align = "center">
 				<thead><tr>
 					<th>State</th>
 					<th>Rank</th>
 					<th>% Change</th>
 				    <th>Job Growth</th>
 				    <th># of Jobs</th>
-			        </tr></thead><tbody>';
+			     </tr></thead><tbody>';
     } else {
-        echo '<table class= "table table-striped table-hover sortable" align = "center">
-			<col span = "5"/>
+        echo '<table class="table table-striped table-hover sortable" align = "center">
 			<thead><tr>
 				<th>Year</th>
 				<th>Rank</th>
 				<th>% Change</th>
 			    <th>Job Growth</th>
 			    <th># of Jobs</th>
-		        </tr></thead>	<tbody>';
+		        </tr></thead><tbody>';
     }
 
     table_populate($rows);
@@ -475,10 +473,10 @@ if($form_controls)
     ?>
                         <form method="post" class="wbc-table">
                         <div class="row">
-                            <div class="col-xs-12 col-md-4">
+                            <div class="form-group col-xs-12 col-md-4">
                                 <?php populateDropDownControls('states', $states , $formValues); ?>
                             </div>
-                            <div class="col-xs-12 col-md-2">
+                            <div class="form-group col-xs-12 col-md-2">
                                 <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
                             </div>
                         </div>
@@ -509,16 +507,18 @@ if($form_controls)
     						CASE WHEN Organization = "Old Consensus" THEN 0 END,
      						Organization ASC;');
 
-            echo '<table class= "table table-striped table-hover sortable">
+            echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
-    			  <th>Current $ Personal Income</th>
-    			  <th>Gross Gaming Revenue</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		      </tr></thead><tbody>';
+    			  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+        			  <th>Current $ Personal Income</th>
+        			  <th>Gross Gaming Revenue</th>
+        		      <th>Wage & Salary Employment</th>
+        		      <th>Population Growth</th>
+        		      <th>Single-Family Housing Permits</th>
+    		        </tr>
+                   </thead><tbody>';
 
             table_populate($rows);
 
@@ -530,10 +530,9 @@ if($form_controls)
     						CASE WHEN Organization = "Old Consensus" THEN 0 END,
      						Organization ASC;');
 
-            echo '<table class= "table table-striped table-hover sortable">
+            echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     			  <th>Gross Gaming Revenue</th>
     		      <th>Wage & Salary Employment</th>
@@ -552,10 +551,9 @@ if($form_controls)
     					CASE WHEN Organization = "Old Consensus" THEN 0 END,
     						Organization ASC;');
 
-            echo '<table class= "table table-striped table-hover sortable">
+            echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     			  <th> Manufacturing Employment</th>
     		      <th>Wage & Salary Employment</th>
@@ -572,10 +570,9 @@ if($form_controls)
     						CASE WHEN Organization = "Old Consensus" THEN 0 END,
      						Organization ASC;');
 
-            echo '<table class= "table table-striped table-hover sortable">
+            echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     			  <th> Manufacturing Employment</th>
     		      <th>Wage & Salary Employment</th>
@@ -595,8 +592,7 @@ if($form_controls)
 
             echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     		      <th>Wage & Salary Employment</th>
     		      <th>Population Growth</th>
@@ -614,8 +610,7 @@ if($form_controls)
 
             echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <col span = "5" />
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     		      <th>Wage & Salary Employment</th>
     		      <th>Population Growth</th>
@@ -632,11 +627,10 @@ if($form_controls)
     				CASE WHEN Organization = "Old Consensus" THEN 0 END,
     				Organization ASC;');
 
-            echo '<table class= "table table-striped table-hover sortable">
-    			  <col span = "5" />
+            echo '<table class="table table-striped table-hover sortable">
     			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
     			  <thead><tr>
-    			  <th></th>
+    			  <th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     			  <th>Retail Sales</th>
     		      <th>Wage & Salary Employment</th>
@@ -653,9 +647,8 @@ if($form_controls)
     	 					Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    		      <col span = "5" />
     			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th></th>
+    			  <thead><tr><th>&nbsp;</th>
     			  <th>Current $ Personal Income</th>
     			  <th>Retail Sales</th>
     		      <th>Wage & Salary Employment</th>
@@ -696,17 +689,17 @@ function gpbc_table_gen($atts)
 
         echo '<p align = "left"><b>First Quarter, 2015</b><p>';
 
-        echo '<table class= "table table-striped table-hover sortable">
-		<caption>' . $curr_year . ' Forecast Annual Percentage Change</caption>
-		<col span = "5" />
-		<thead><tr><th></th>
+        echo '<table class="table table-striped table-hover sortable">
+		<caption>' . $curr_year . ' Forecast Annual Percentage Change</c
+		<thead><tr>
+              <th>&nbsp;</th>
 			  <th>Population</th>
 			  <th>Current $ Personal Income</th>
 			  <th>Retail Sales</th>
 		      <th>Wage & Salary Empl.</th>
 		      <th>Manufacturing Empl.</th>
 		      <th>Construction Empl.</th>
-	              </tr></thead><tbody>';
+	    </tr></thead><tbody>';
 
 
         table_populate($rows);
@@ -721,10 +714,9 @@ function gpbc_table_gen($atts)
 										FORMAT(Q6,1)  FROM gpbc_deployment
 										WHERE  year = "2016";');
 
-        echo '<table class= "table table-striped table-hover sortable">
-		<caption>' . $next_year . ' Forecast Annual Percentage Change</caption>
-		<col span = "5" />
-		<thead><tr><th></t>
+        echo '<table class="table table-striped table-hover sortable">
+		<caption>' . $next_year . ' Forecast Annual Percentage Change</c
+		<thead><tr><th>&nbsp;</th>
 			  <th>Population</th>
 			  <th>Current $ Personal Income</th>
 			  <th>Retail Sales</th>
@@ -744,9 +736,8 @@ function gpbc_table_gen($atts)
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_office where year = "2015"');
 
-        echo '<table class= "table table-striped table-hover sortable">
+        echo '<table class= table table-striped table-hover sortable">
 			<caption>' . $curr_year . ' Office Forecast </caption>
-			<col span = "4" />
 			<thead><tr>
 				  <th>Organization</th>
 				  <th>Construction</th>
@@ -760,9 +751,8 @@ function gpbc_table_gen($atts)
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_office where year = "2016"');
 
-        echo '<table class= "table table-striped table-hover sortable">
+        echo '<table class="table table-striped table-hover sortable">
 			<caption>' . $next_year . ' Office Forecast </caption>
-			<col span = "4" />
 			<thead><tr>
 				  <th>Organization</th>
 				  <th>Construction</th>
@@ -781,9 +771,8 @@ function gpbc_table_gen($atts)
 																 FORMAT(Q3,1),
 																 FORMAT(Q4,1) from gpbc_residential where year = "2015"');
 
-        echo '<table class= "table table-striped table-hover sortable">
-				<caption>' . $curr_year . ' Residential Forecast </caption>
-				<col span = "5" />
+        echo '<table class="table table-striped table-hover sortable">
+				<caption>' . $curr_year . ' Residential Forecast </cap
 				<thead><tr>
 					  <th>Organization</th>
 					  <th>Single-family permits</th>
@@ -798,9 +787,8 @@ function gpbc_table_gen($atts)
 																 FORMAT(Q3,1),
 																 FORMAT(Q4,1) from gpbc_residential where year = "2016"');
 
-        echo '<table class= "table table-striped table-hover sortable">
-				<caption>' . $next_year . ' Residential Forecast </caption>
-				<col span = "5" />
+        echo '<table class="table table-striped table-hover sortable">
+				<caption>' . $next_year . ' Residential Forecast </cap
 				<thead><tr>
 					  <th>Organization</th>
 					  <th>Single-family permits</th>
@@ -818,9 +806,8 @@ function gpbc_table_gen($atts)
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
 
-        echo '<table class= "table table-striped table-hover sortable">
+        echo '<table class="table table-striped table-hover sortable">
 			  <caption>' . $curr_year . ' Industrial Forecast </caption>
-			  <col span = "4" />
 			  <thead><tr>
 				  <th>Organization</th>
 				  <th>Construction</th>
@@ -833,9 +820,8 @@ function gpbc_table_gen($atts)
 																FORMAT(Q2,1),
 																FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
 
-        echo '<table class= "table table-striped table-hover sortable">
+        echo '<table class="table table-striped table-hover sortable">
 			  <caption>' . $next_year . ' Industrial Forecast </caption>
-			  <col span = "4" />
 			  <thead><tr>
 				  <th>Organization</th>
 				  <th>Construction</th>
@@ -850,15 +836,14 @@ function gpbc_table_gen($atts)
         $rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
 
         echo '<table class="table table-striped table-hover sortable">
-			  <col span="6" />
-			  <thead><tr><th></th>
+			  <thead><tr><th>&nbsp;</th>
 			  <th>Population (thousands)</th>
 			  <th>Personal Income ($ millions)</th>
 			  <th>Retail Sales ($ millions)</th>
 			  <th>Wage & Salary Employment (thousands)</th>
 			  <th>Manufacturing Employment (thousands)</th>
 			  <th>Construction Employment (thousands)</th>
-			  <th>Unemployment Rate</th>';
+			  <th>Unemployment Rate</th></tr></thead><tbody>';
 
         table_populate($rows);
     }
