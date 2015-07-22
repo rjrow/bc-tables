@@ -876,6 +876,7 @@ function echo_jg_table_gen()
         'month' => $_POST['month']
     );
     echo jg_table_gen($custom_args);
+    die();
 }
 
 function echo_bc_table_gen()
@@ -883,6 +884,7 @@ function echo_bc_table_gen()
     $custom_args = array(
         'state' => $_POST['state']);
     echo bc_table_gen($custom_args);
+    die();
 }
 
 add_action('wp_ajax_echo_jg_table_gen', 'echo_jg_table_gen');
