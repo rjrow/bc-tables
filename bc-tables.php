@@ -65,7 +65,7 @@ function jg_table_gen($atts)
 {
     ob_start();
     $table_type = isset($_POST['table_type']) ? $_POST['table_type'] : $atts['table_type'];
-   	$form_controls =  isset($_POST['formcontrols']) ? false : true;
+    $form_controls =  isset($_POST['formcontrols']) ? false : true;
 
     // Setup databas e for call later on
     $DB_USER = DB_USER_jg;
@@ -80,7 +80,7 @@ function jg_table_gen($atts)
         "RoMSAs" => Array(
             "table" => "msa_rankings",
             "table_us" => "national_rankings_t",
-            "col_state_name" => "area_name"
+            "col_state_name" => "state_name"
         ),
         "CSR" => Array(
             "table" => "state_rankings",
@@ -93,12 +93,12 @@ function jg_table_gen($atts)
             "col_state_name" => "state_name"
         ),
         "MSAover" => Array(
-            "table" => "msa_rankings_over",
+            "table" => "msa_rankings_over_t",
             "table_us" => "national_rankings_t",
             "col_state_name" => "area_name"
         ),
         "MSAunder" => Array(
-            "table" => "msa_rankings_under",
+            "table" => "msa_rankings_under_t",
             "table_us" => "national_rankings_t",
             "col_state_name" => "area_name"
         ),
@@ -142,19 +142,18 @@ function jg_table_gen($atts)
     // Setting variables to be initialized to default settings if they are not selected
     $month      = !isset($_POST['month']) ? '1' : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
-    $industry 	= !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
+    $industry   = !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
-
     $formValues = array(
-    	'month' => $month,
-    	'year' => $year,
-    	'industry' => $industry,
-    	'area' => $area,
-    	'type' => $type,
-    	'msa_flag' => $msa_flag
+        'month' => $month,
+        'year' => $year,
+        'industry' => $industry,
+        'area' => $area,
+        'type' => $type,
+        'msa_flag' => $msa_flag
     );
 
     $types =  array(
@@ -199,177 +198,195 @@ function jg_table_gen($atts)
 
     switch ($table_type) {
         case "CSR":
+            $comma = ',';
             $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-							AND Year = "' . $year . '"
-							AND Month = "' . $month . '"  UNION ALL
-							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
-								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-								FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
-								AND Year = "' . $year . '"
-								AND Month = "' . $month . '";');
+                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND Year = "' . $year . '"  AND Month = "' . $month . '"
+                            AND state_name NOT LIKE "%'. $comma. '%" UNION ALL
+                                  SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
+                                FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                                FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
+                                AND Year = "' . $year . '"
+                                AND Month = "' . $month . '";');
+
+
             if ($form_controls):
-           	?>
-				<form method="post" class="bc-table" data-table-type="CSR">
-					<div class="row">
-						<div class="form-group col-xs-12 col-md-5">
-							<?php populateDropDownControls('types', $types , $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-5">
-							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
-						</div>
-					</div>
-				</form>
-			<?php
-			endif;
+            ?>
+                <form method="post" class="bc-table" data-table-type="CSR">
+                    <div class="row">
+                        <div class="form-group col-xs-12 col-md-5">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-5">
+                            <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
+                        </div>
+                    </div>
+                </form>
+            <?php
+            endif;
             break;
         case "ASR":
+            $comma = ',';
             $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-							AND Year = "' . $year . '"
-							AND Month = "' . $month . '"  UNION ALL
-							      SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
-								FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-								FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
-								AND Year = "' . $year . '"
-								AND Month = "' . $month . '";');
+                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND Year = "' . $year . '"
+                            AND Month = "' . $month . '"
+                            AND state_name NOT LIKE "%'. $comma. '%" UNION ALL
+                                  SELECT ' . $col_state_name . ', rank, FORMAT(' . $col_pct_change . ',2),
+                                FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                                FROM ' . $table_us . ' WHERE industry_name = "' . $industry . '" AND industry_name <=> supersector_name
+                                AND Year = "' . $year . '"
+                                AND Month = "' . $month . '";');
+
             if ($form_controls):
-			?>
-				<form method="post" class="bc-table" data-table-type="ASR">
-					<div class="row">
+            ?>
+                <form method="post" class="bc-table" data-table-type="ASR">
+                    <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('types', $types , $formValues); ?>
                         </div>
-						<div class="form-group col-xs-12 col-md-3">
-							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<?php populateDropDownControls('month', $months, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $years, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-						</div>
-					</div>
-				</form>
-			<?php
-			endif;
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <?php populateDropDownControls('month', $months, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <?php populateDropDownControls('year', $years, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </form>
+            <?php
+            endif;
             break;
         case "RoMSAs":
             $month = date("n", strtotime($month));
             #if msa == over || msa == all || msa == under :: do stuff
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
-							FORMAT(value,2)
-							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-							AND Year = "' . $year . '"
-							AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
+                            FORMAT(value,2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND Year = "' . $year . '"
+                            AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
 
-			if ($form_controls):
-			?>
-				<form method="post" class="bc-table" data-table-type="RoMSAs">
-					<div class="row">
+            if ($form_controls):
+            ?>
+                <form method="post" class="bc-table" data-table-type="RoMSAs">
+                    <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('types', $types , $formValues); ?>
                         </div>
-						<div class="form-group col-xs-12 col-md-3">
-							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<?php populateDropDownControls('month', $months, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<?php populateDropDownControls('year', $years, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-						</div>
-					</div>
-				</form>
-			<?php
-			endif;
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <?php populateDropDownControls('month', $months, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <?php populateDropDownControls('year', $years, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </form>
+            <?php
+            endif;
             break;
         case "MSAover":
             $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-									FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-									FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-									AND Year = "' . $year . '"
-									AND Month = "' . $month . '";');
-			if ($form_controls):
-			?>
-				<form method="post" class="bc-table" data-table-type="MSAover">
-					<div class="row">
-						<div class="form-group col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $months, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-3">
-					 		<?php populateDropDownControls('year', $years, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-						</div>
-					</div>
-				</form>
-			<?php
-			endif;
+                                    FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                                    FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                                    AND Year = "' . $year . '"
+                                    AND Month = "' . $month . '";');
+            if ($form_controls):
+            ?>
+                <form method="post" class="bc-table" data-table-type="MSAover">
+                    <div class="row">
+                        <div class="form-group col-xs-12 col-md-4">
+                            <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('month', $months, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('year', $years, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </form>
+            <?php
+            endif;
             break;
         case "MSAunder":
+
             $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-							FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-							FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-							AND Year = "' . $year . '"
-									AND Month = "' . $month . '";');
+                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND Year = "' . $year . '"
+                                    AND Month = "' . $month . '";');
+            echo 'SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
+                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND Year = "' . $year . '"
+                                    AND Month = "' . $month . '";';
+
             if ($form_controls):
-           	?>
-				<form method="post" class="bc-table" data-table-type="MSAunder">
-					<div class="row">
-						<div class="form-group col-xs-12 col-md-4">
-							<?php populateDropDownControls('industry', $sectors, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-3">
-							<?php populateDropDownControls('month', $months, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-3">
-							<?php populateDropDownControls('year', $years, $formValues); ?>
-						</div>
-						<div class="form-group col-xs-12 col-md-2">
-							<input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-						</div>
-					</div>
-				</form>
-			<?php
-			endif;
+            ?>
+                <form method="post" class="bc-table" data-table-type="MSAunder">
+                    <div class="row">
+                        <div class="form-group col-xs-12 col-md-4">
+                            <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('month', $months, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('year', $years, $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-2">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </form>
+            <?php
+            endif;
             break;
         case "Historical":
+            $comma = ',';
+            $table = !isset($_POST['table']) ? 'state_rankings' : $_POST['table'];
+            $col_state_name = !isset($_POST['col_state_name']) ? 'state_name' : $_POST['col_state_name'];
             $month = date("n", strtotime($month));
+
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-	                        FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-	                        FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-	                        AND ' . $col_state_name . ' = "' . $area . '"
-	                        AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
+                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
+                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
+                            AND ' . $col_state_name . ' = "' . $area . '"
+                            AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
+
 
            if ($form_controls) {
-            	?>
-				<form method="post" class="bc-table" data-table-type="Historical">
-	            	 <div class="row">
-	            	     <div class="form-group col-xs-12 col-md-4">
-	             	        <select name = "area" class="form-control">
-	        	<?php
+                ?>
+                <form method="post" class="bc-table" data-table-type="Historical">
+                     <div class="row">
+                         <div class="form-group col-xs-12 col-md-4">
+                            <select name = "area" class="form-control">
+                <?php
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
-                $fetch_state_name = $newdb->get_results('SELECT DISTINCT state_name FROM state_rankings ORDER BY state_name ASC;');
+                $fetch_state_name = $newdb->get_results('SELECT DISTINCT state_name FROM state_rankings where state_name NOT LIKE "%,%" ORDER BY state_name ASC;');
                 echo '<optgroup label = "States">';
                 if (!empty($fetch_state_name)): /** Loop through the $results and add each as a dropdown option */
                     foreach ($fetch_state_name as $result):
@@ -380,19 +397,20 @@ function jg_table_gen($atts)
                     echo '</optgroup>';
                 endif;
 
-                $fetch_area_name = $newdb->get_results('SELECT DISTINCT area_name FROM msa_rankings  WHERE area_name LIKE "%,%" ORDER BY area_name ASC;');
+                $fetch_area_name = $newdb->get_results('SELECT DISTINCT state_name FROM msa_rankings ORDER BY state_name ASC;');
                 echo '<optgroup label = "MSAs">';
                 if (!empty($fetch_area_name)): /** Loop through the $results and add each as a dropdown option */
                     foreach ($fetch_area_name as $result):
-                        $options2 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->area_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->area_name);
+                        $options2 .= sprintf("\t" . '<option value="%1$s"' . ($formValues['area'] === $result->state_name ? ' selected ' : '' ) . '>%1$s</option>' . "\n", $result->state_name);
                     endforeach;
                     /** Output the dropdown */
                     echo $options2;
                 endif;
-              	echo '</optgroup>';
+                echo '</optgroup>';
                 echo '</select></div>';
 
-                echo '<div class="form-group col-sx-12 col-md-3">';
+
+                echo '<div class="form-group -sx-12 col-md-3">';
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 $fetch_industries = get_industry_list_by_area($area);
                 if($fetch_industries !== NULL){
@@ -416,22 +434,22 @@ function jg_table_gen($atts)
     // Create tables which will be populated, only historical differs from the others hence the if statement
     if ($table_type == "Historical") {
         echo '<table class="table table-striped table-hover sortable" align = "center">
-				<thead><tr>
-					<th>State</th>
-					<th>Rank</th>
-					<th>% Change</th>
-				    <th>Job Growth</th>
-				    <th># of Jobs</th>
-			     </tr></thead><tbody>';
+                <thead><tr>
+                    <th>State</th>
+                    <th>Rank</th>
+                    <th>% Change</th>
+                    <th>Job Growth</th>
+                    <th># of Jobs</th>
+                 </tr></thead><tbody>';
     } else {
         echo '<table class="table table-striped table-hover sortable" align = "center">
-			<thead><tr>
-				<th>Year</th>
-				<th>Rank</th>
-				<th>% Change</th>
-			    <th>Job Growth</th>
-			    <th># of Jobs</th>
-		        </tr></thead><tbody>';
+            <thead><tr>
+                <th>Year</th>
+                <th>Rank</th>
+                <th>% Change</th>
+                <th>Job Growth</th>
+                <th># of Jobs</th>
+                </tr></thead><tbody>';
     }
 
     table_populate($rows);
@@ -500,161 +518,161 @@ if($form_controls)
     switch($state){
         case "nevada":
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
-    						 Q4A1, Q5A1
-    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
-     						Organization ASC;');
+                             Q4A1, Q5A1
+                            FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                            CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                            Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead>
+                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead>
                     <tr>
                       <th>&nbsp;</th>
-        			  <th>Current $ Personal Income</th>
-        			  <th>Gross Gaming Revenue</th>
-        		      <th>Wage & Salary Employment</th>
-        		      <th>Population Growth</th>
-        		      <th>Single-Family Housing Permits</th>
-    		        </tr>
+                      <th>Current $ Personal Income</th>
+                      <th>Gross Gaming Revenue</th>
+                      <th>Wage & Salary Employment</th>
+                      <th>Population Growth</th>
+                      <th>Single-Family Housing Permits</th>
+                    </tr>
                    </thead><tbody>';
 
             table_populate($rows);
 
             $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_ggr, Q3A2,
-    						 Q4A2, Q5A2
-    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
-     						Organization ASC;');
+                             Q4A2, Q5A2
+                            FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                            CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                            Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    			  <th>Gross Gaming Revenue</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		       </tr></thead><tbody>';
+                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th>Gross Gaming Revenue</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                   </tr></thead><tbody>';
 
             table_populate($rows);
 
         case "new mexico" :
         case "oregon"     :
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_mfg, Q3A1, Q4A1, Q5A1
-    					FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    					CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    					CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    					CASE WHEN Organization = "Old Consensus" THEN 0 END,
-    						Organization ASC;');
+                        FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                        CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                        CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                        CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                            Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    			  <th> Manufacturing Employment</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		      </tr></thead><tbody>';
+                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th> Manufacturing Employment</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                  </tr></thead><tbody>';
 
             table_populate($rows);
 
             $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2_mfg, Q3A2, Q4A2, Q5A2
-    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Old Consensus" THEN 0 END,
-     						Organization ASC;');
+                            FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                            CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                            Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    			  <th> Manufacturing Employment</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		       </tr></thead><tbody>';
+                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th> Manufacturing Employment</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                   </tr></thead><tbody>';
 
             table_populate($rows);
 
         case "montana":
             $rows = $newdb->get_results('SELECT Organization,Q1A1, Q3A1, Q4A1, Q5A1
-    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-    				Organization ASC;');
+                    FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                    CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                    Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		      </tr></thead><tbody>';
+                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                  </tr></thead><tbody>';
 
             table_populate($rows);
 
             $rows = $newdb->get_results('SELECT Organization, Q1A2, Q3A2, Q4A2, Q5A2
-    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-    				Organization ASC;');
+                    FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                    CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                    Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    		       </tr></thead><tbody>';
+                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                   </tr></thead><tbody>';
 
             table_populate($rows);
 
         default:
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1
-    				FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    				CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    				CASE WHEN Organization = "Old Consensus" THEN 0 END,
-    				Organization ASC;');
+                    FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                    CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                    CASE WHEN Organization = "Old Consensus" THEN 0 END,
+                    Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr>
-    			  <th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    			  <th>Retail Sales</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    	          </tr></thead><tbody>';
+                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr>
+                  <th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th>Retail Sales</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                  </tr></thead><tbody>';
 
             table_populate($rows);
 
             $rows = $newdb->get_results('SELECT Organization, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2
-    						FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
-    						CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
-    						CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
-    	 					Organization ASC;');
+                            FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
+                            CASE WHEN Organization = "Last Month Consensus" THEN 1 ELSE 0 END,
+                            CASE WHEN Organization = "Consensus" THEN 1 ELSE 0 END,
+                            Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-    			  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
-    			  <thead><tr><th>&nbsp;</th>
-    			  <th>Current $ Personal Income</th>
-    			  <th>Retail Sales</th>
-    		      <th>Wage & Salary Employment</th>
-    		      <th>Population Growth</th>
-    		      <th>Single-Family Housing Permits</th>
-    	          </tr></thead><tbody>';
+                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <thead><tr><th>&nbsp;</th>
+                  <th>Current $ Personal Income</th>
+                  <th>Retail Sales</th>
+                  <th>Wage & Salary Employment</th>
+                  <th>Population Growth</th>
+                  <th>Single-Family Housing Permits</th>
+                  </tr></thead><tbody>';
 
             table_populate($rows);
         }
@@ -679,51 +697,51 @@ function gpbc_table_gen($atts)
     //Economic forecast
     if ($table_type == "economic") {
         $rows = $newdb->get_results('SELECT organization,
-										FORMAT(Q1,1),
-										FORMAT(Q2,1),
-										FORMAT(Q3,1),
-										FORMAT(Q4,1),
-										FORMAT(Q5,1),
-										FORMAT(Q6,1)  FROM gpbc_deployment
-										WHERE  year = "2015";');
+                                        FORMAT(Q1,1),
+                                        FORMAT(Q2,1),
+                                        FORMAT(Q3,1),
+                                        FORMAT(Q4,1),
+                                        FORMAT(Q5,1),
+                                        FORMAT(Q6,1)  FROM gpbc_deployment
+                                        WHERE  year = "2015";');
 
         echo '<p align = "left"><b>First Quarter, 2015</b><p>';
 
         echo '<table class="table table-striped table-hover sortable">
-		<caption>' . $curr_year . ' Forecast Annual Percentage Change</c
-		<thead><tr>
+        <caption>' . $curr_year . ' Forecast Annual Percentage Change</c
+        <thead><tr>
               <th>&nbsp;</th>
-			  <th>Population</th>
-			  <th>Current $ Personal Income</th>
-			  <th>Retail Sales</th>
-		      <th>Wage & Salary Empl.</th>
-		      <th>Manufacturing Empl.</th>
-		      <th>Construction Empl.</th>
-	    </tr></thead><tbody>';
+              <th>Population</th>
+              <th>Current $ Personal Income</th>
+              <th>Retail Sales</th>
+              <th>Wage & Salary Empl.</th>
+              <th>Manufacturing Empl.</th>
+              <th>Construction Empl.</th>
+        </tr></thead><tbody>';
 
 
         table_populate($rows);
 
 
         $rows = $newdb->get_results('SELECT organization,
-										FORMAT(Q1,1),
-										FORMAT(Q2,1),
-										FORMAT(Q3,1),
-										FORMAT(Q4,1),
-										FORMAT(Q5,1),
-										FORMAT(Q6,1)  FROM gpbc_deployment
-										WHERE  year = "2016";');
+                                        FORMAT(Q1,1),
+                                        FORMAT(Q2,1),
+                                        FORMAT(Q3,1),
+                                        FORMAT(Q4,1),
+                                        FORMAT(Q5,1),
+                                        FORMAT(Q6,1)  FROM gpbc_deployment
+                                        WHERE  year = "2016";');
 
         echo '<table class="table table-striped table-hover sortable">
-		<caption>' . $next_year . ' Forecast Annual Percentage Change</c
-		<thead><tr><th>&nbsp;</th>
-			  <th>Population</th>
-			  <th>Current $ Personal Income</th>
-			  <th>Retail Sales</th>
-		      <th>Wage & Salary Empl.</th>
-		      <th>Manufacturing Empl.</th>
-		      <th>Construction Empl.</th>
-	              </tr></thead><tbody>';
+        <caption>' . $next_year . ' Forecast Annual Percentage Change</c
+        <thead><tr><th>&nbsp;</th>
+              <th>Population</th>
+              <th>Current $ Personal Income</th>
+              <th>Retail Sales</th>
+              <th>Wage & Salary Empl.</th>
+              <th>Manufacturing Empl.</th>
+              <th>Construction Empl.</th>
+                  </tr></thead><tbody>';
 
         table_populate($rows);
 
@@ -733,32 +751,32 @@ function gpbc_table_gen($atts)
     //Construction forecast
     if ($table_type == "office") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																FORMAT(Q3,1) from gpbc_office where year = "2015"');
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_office where year = "2015"');
 
         echo '<table class= table table-striped table-hover sortable">
-			<caption>' . $curr_year . ' Office Forecast </caption>
-			<thead><tr>
-				  <th>Organization</th>
-				  <th>Construction</th>
-			      <th>Vacancy (Year End %)</th>
-			      <th>Absorpotion</th>
-		              </tr></thead><tbody>';
+            <caption>' . $curr_year . ' Office Forecast </caption>
+            <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
 
         table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																FORMAT(Q3,1) from gpbc_office where year = "2016"');
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_office where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-			<caption>' . $next_year . ' Office Forecast </caption>
-			<thead><tr>
-				  <th>Organization</th>
-				  <th>Construction</th>
-			      <th>Vacancy (Year End %)</th>
-			      <th>Absorpotion</th>
-		              </tr></thead><tbody>';
+            <caption>' . $next_year . ' Office Forecast </caption>
+            <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
 
         table_populate($rows);
 
@@ -767,35 +785,35 @@ function gpbc_table_gen($atts)
 
     if ($table_type == "residential") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																 FORMAT(Q3,1),
-																 FORMAT(Q4,1) from gpbc_residential where year = "2015"');
+                                                                FORMAT(Q2,1),
+                                                                 FORMAT(Q3,1),
+                                                                 FORMAT(Q4,1) from gpbc_residential where year = "2015"');
 
         echo '<table class="table table-striped table-hover sortable">
-				<caption>' . $curr_year . ' Residential Forecast </cap
-				<thead><tr>
-					  <th>Organization</th>
-					  <th>Single-family permits</th>
-				      <th>Multi-family permits</th>
-				      <th>Apartment Vacancy (Q4 %)</th>
-				      <th>Apartment Absorpotion</th>
-			              </tr></thead><tbody>';
+                <caption>' . $curr_year . ' Residential Forecast </cap
+                <thead><tr>
+                      <th>Organization</th>
+                      <th>Single-family permits</th>
+                      <th>Multi-family permits</th>
+                      <th>Apartment Vacancy (Q4 %)</th>
+                      <th>Apartment Absorpotion</th>
+                          </tr></thead><tbody>';
         table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																 FORMAT(Q3,1),
-																 FORMAT(Q4,1) from gpbc_residential where year = "2016"');
+                                                                FORMAT(Q2,1),
+                                                                 FORMAT(Q3,1),
+                                                                 FORMAT(Q4,1) from gpbc_residential where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-				<caption>' . $next_year . ' Residential Forecast </cap
-				<thead><tr>
-					  <th>Organization</th>
-					  <th>Single-family permits</th>
-				      <th>Multi-family permits</th>
-				      <th>Apartment Vacancy (Q4 %)</th>
-				      <th>Apartment Absorpotion</th>
-			              </tr></thead><tbody>';
+                <caption>' . $next_year . ' Residential Forecast </cap
+                <thead><tr>
+                      <th>Organization</th>
+                      <th>Single-family permits</th>
+                      <th>Multi-family permits</th>
+                      <th>Apartment Vacancy (Q4 %)</th>
+                      <th>Apartment Absorpotion</th>
+                          </tr></thead><tbody>';
         table_populate($rows);
 
     }
@@ -803,31 +821,31 @@ function gpbc_table_gen($atts)
 
     if ($table_type == "industrial") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
 
         echo '<table class="table table-striped table-hover sortable">
-			  <caption>' . $curr_year . ' Industrial Forecast </caption>
-			  <thead><tr>
-				  <th>Organization</th>
-				  <th>Construction</th>
-			      <th>Vacancy (Year End %)</th>
-			      <th>Absorpotion</th>
-		              </tr></thead><tbody>';
+              <caption>' . $curr_year . ' Industrial Forecast </caption>
+              <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
         table_populate($rows);
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
-																FORMAT(Q2,1),
-																FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-			  <caption>' . $next_year . ' Industrial Forecast </caption>
-			  <thead><tr>
-				  <th>Organization</th>
-				  <th>Construction</th>
-			      <th>Vacancy (Year End %)</th>
-			      <th>Absorpotion</th>
-		              </tr></thead><tbody>';
+              <caption>' . $next_year . ' Industrial Forecast </caption>
+              <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
         table_populate($rows);
     }
 
@@ -836,14 +854,14 @@ function gpbc_table_gen($atts)
         $rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
 
         echo '<table class="table table-striped table-hover sortable">
-			  <thead><tr><th>&nbsp;</th>
-			  <th>Population (thousands)</th>
-			  <th>Personal Income ($ millions)</th>
-			  <th>Retail Sales ($ millions)</th>
-			  <th>Wage & Salary Employment (thousands)</th>
-			  <th>Manufacturing Employment (thousands)</th>
-			  <th>Construction Employment (thousands)</th>
-			  <th>Unemployment Rate</th></tr></thead><tbody>';
+              <thead><tr><th>&nbsp;</th>
+              <th>Population (thousands)</th>
+              <th>Personal Income ($ millions)</th>
+              <th>Retail Sales ($ millions)</th>
+              <th>Wage & Salary Employment (thousands)</th>
+              <th>Manufacturing Employment (thousands)</th>
+              <th>Construction Employment (thousands)</th>
+              <th>Unemployment Rate</th></tr></thead><tbody>';
 
         table_populate($rows);
     }
@@ -873,7 +891,9 @@ function echo_jg_table_gen()
         'table_type' => $_POST['table_type'],
         'area' => $_POST['area'],
         'industry' => $_POST['industry'],
-        'month' => $_POST['month']
+        'month' => $_POST['month'],
+        'table' => $_POST['table'],
+        'col_state_name' => $_POST['col_state_name']
     );
     echo jg_table_gen($custom_args);
     die();
