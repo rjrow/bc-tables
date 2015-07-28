@@ -414,6 +414,7 @@ function jg_table_gen($atts)
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 $fetch_industries = get_industry_list_by_area($area);
                 if($fetch_industries !== NULL){
+                    sort($fetch_industries);
                     foreach ($fetch_industries as $key => $value) {
                         echo '<option' . ($formValues['industry'] === $value ? ' selected ' : '' ) . '>' . $value. '</option>';
                     }
