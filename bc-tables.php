@@ -93,12 +93,12 @@ function jg_table_gen($atts)
             "col_state_name" => "state_name"
         ),
         "MSAover" => Array(
-            "table" => "msa_rankings_over_t",
+            "table" => "msa_rankings_over",
             "table_us" => "national_rankings_t",
             "col_state_name" => "area_name"
         ),
         "MSAunder" => Array(
-            "table" => "msa_rankings_under_t",
+            "table" => "msa_rankings_under",
             "table_us" => "national_rankings_t",
             "col_state_name" => "area_name"
         ),
@@ -140,6 +140,7 @@ function jg_table_gen($atts)
     );
 
     // Setting variables to be initialized to default settings if they are not selected
+
     $month      = !isset($_POST['month']) ? '1' : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
     $industry   = !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
@@ -198,8 +199,11 @@ function jg_table_gen($atts)
 
     switch ($table_type) {
         case "CSR":
+            $month = $newdb->get_results('select month from date_ref_t;', ARRAY_N);
+            $month = (string)$month[0][0];
             $comma = ',';
-            $month = date("n", strtotime($month));
+            $dateObj = DateTime::createFromFormat('!m', $month);
+            $monthName = $dateObj->format('F');
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -211,16 +215,18 @@ function jg_table_gen($atts)
                                 AND Year = "' . $year . '"
                                 AND Month = "' . $month . '";');
 
-
             if ($form_controls):
             ?>
                 <form method="post" class="bc-table" data-table-type="CSR">
                     <div class="row">
-                        <div class="form-group col-xs-12 col-md-5">
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('types', $types , $formValues); ?>
                         </div>
-                        <div class="form-group col-xs-12 col-md-5">
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues); ?>
+                        </div>
+                        <div class = "col-xs-6 col-md-3" id = "monthTitle">
+                            <?php echo $monthName; ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-2">
                             <input name = "submit" type="submit" class="btn btn-primary" value = "Submit" />
@@ -278,6 +284,7 @@ function jg_table_gen($atts)
                             AND Year = "' . $year . '"
                             AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
 
+
             if ($form_controls):
             ?>
                 <form method="post" class="bc-table" data-table-type="RoMSAs">
@@ -304,6 +311,7 @@ function jg_table_gen($atts)
             break;
         case "MSAover":
             $month = date("n", strtotime($month));
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                                     FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                                     FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -313,13 +321,16 @@ function jg_table_gen($atts)
             ?>
                 <form method="post" class="bc-table" data-table-type="MSAover">
                     <div class="row">
-                        <div class="form-group col-xs-12 col-md-4">
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues); ?>
                         </div>
-                        <div class="form-group col-xs-12 col-md-3">
+                        <div class="form-group col-xs-12 col-md-2">
                             <?php populateDropDownControls('month', $months, $formValues); ?>
                         </div>
-                        <div class="form-group col-xs-12 col-md-3">
+                        <div class="form-group col-xs-12 col-md-2">
                             <?php populateDropDownControls('year', $years, $formValues); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-2">
@@ -331,30 +342,28 @@ function jg_table_gen($atts)
             endif;
             break;
         case "MSAunder":
-
             $month = date("n", strtotime($month));
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
                             AND Year = "' . $year . '"
                                     AND Month = "' . $month . '";');
-            echo 'SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
-                            FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
-                            FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
-                            AND Year = "' . $year . '"
-                                    AND Month = "' . $month . '";';
 
             if ($form_controls):
             ?>
                 <form method="post" class="bc-table" data-table-type="MSAunder">
                     <div class="row">
-                        <div class="form-group col-xs-12 col-md-4">
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
+                        <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues); ?>
                         </div>
-                        <div class="form-group col-xs-12 col-md-3">
+                        <div class="form-group col-xs-12 col-md-2">
                             <?php populateDropDownControls('month', $months, $formValues); ?>
                         </div>
-                        <div class="form-group col-xs-12 col-md-3">
+                        <div class="form-group col-xs-12 col-md-2">
                             <?php populateDropDownControls('year', $years, $formValues); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-2">
@@ -382,7 +391,10 @@ function jg_table_gen($atts)
                 ?>
                 <form method="post" class="bc-table" data-table-type="Historical">
                      <div class="row">
-                         <div class="form-group col-xs-12 col-md-4">
+                        <div class="form-group col-xs-12 col-md-3">
+                            <?php populateDropDownControls('types', $types , $formValues); ?>
+                        </div>
+                         <div class="form-group col-xs-12 col-md-3">
                             <select name = "area" class="form-control">
                 <?php
                 $newdb            = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
@@ -410,7 +422,7 @@ function jg_table_gen($atts)
                 echo '</select></div>';
 
 
-                echo '<div class="form-group -sx-12 col-md-3">';
+                echo '<div class="form-group -sx-12 col-md-2">';
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 $fetch_industries = get_industry_list_by_area($area);
                 if($fetch_industries !== NULL){
@@ -420,7 +432,7 @@ function jg_table_gen($atts)
                 }
                 echo '</select>';
                 echo '</div>';
-                echo '<div class="form-group col-sx-12 col-md-3">';
+                echo '<div class="form-group col-sx-12 col-md-2">';
                 populateDropDownControls('month', $months, $formValues);
                 echo '</div>';
                 echo '<div class="form-group col-sm-12 col-md-2">';
@@ -465,9 +477,10 @@ function bc_table_gen()
     ob_start();
 
     $form_controls =  isset($_POST['formcontrols']) ? false : true;
-    $state       = !isset($_POST['state']) ? "Arizona" : $_POST['state'];
+    $state       = !isset($_POST['state']) ? "Summary" : $_POST['state'];
 
     $states = array(
+    "summary" => "Summary",
     "arizona" => "Arizona",
     "california" => "California",
     "colorado" => "Colorado",
@@ -516,6 +529,43 @@ if($form_controls)
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
 
     switch($state){
+        case "Summary":
+            $rows = $newdb->get_results('SELECT States, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1 FROM wbc_deployment
+                                            WHERE Organization = "Consensus" ORDER BY States ASC;');
+
+            echo '<table class="table table-striped table-hover sortable">
+                  <caption> ' . $curr_year .' Forecasts Annual Percentage Change</caption>
+                  <thead>
+                    <tr>
+                    <th>&nbsp;</th>
+                    <th>Current $ Personal Income</th>
+                    <th>Retail Sales</th>
+                    <th>Wage & Salary Employment</th>
+                    <th>Population Growth</th>
+                    <th>Single-Family Housing Permits</th>
+                    </tr>
+                  </thead><tbody>';
+
+            table_populate($rows);
+
+            $rows = $newdb->get_results('SELECT States, Q1A2, Q2A2, Q3A2, Q4A2, Q5A2 FROM wbc_deployment
+                                            WHERE Organization = "Consensus" ORDER BY States ASC;');
+
+            echo '<table class="table table-striped table-hover sortable">
+                  <caption> ' . $next_year .'Forecasts Annual Percentage Change</caption>
+                  <thead>
+                    <tr>
+                    <th>&nbsp;</th>
+                    <th>Current $ Personal Income</th>
+                    <th>Retail Sales</th>
+                    <th>Wage & Salary Employment</th>
+                    <th>Population Growth</th>
+                    <th>Single-Family Housing Permits</th>
+                    </tr>
+                  </thead><tbody>';
+
+            table_populate($rows);
+
         case "nevada":
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
                              Q4A1, Q5A1
@@ -914,8 +964,16 @@ add_action('wp_ajax_echo_bc_table_gen', 'echo_bc_table_gen');
 add_action('wp_ajax_nopriv_echo_bc_table_gen', 'echo_bc_table_gen');
 
 
+function bctables_css_enqueue()
+{
+
+}
+
+
 function bctables_js_enqueue()
 {
+    wp_register_style('fontcss', plugin_dir_url(__FILE__).'css/fontcss.css');
+
     echo '<script type="text/javascript">var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
     wp_enqueue_media();
     // Registers and enqueues the required javascript.
@@ -923,6 +981,7 @@ function bctables_js_enqueue()
         'jquery'
     ));
     wp_enqueue_script('bctables-js');
+    wp_enqueue_style('fontcss');
 }
 
 add_action('wp_enqueue_scripts', 'bctables_js_enqueue');
