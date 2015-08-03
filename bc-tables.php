@@ -426,6 +426,7 @@ function jg_table_gen($atts)
                 echo '<select name = "industry" id="select_industry" class="form-control">';
                 $fetch_industries = get_industry_list_by_area($area);
                 if($fetch_industries !== NULL){
+                    sort($fetch_industries);
                     foreach ($fetch_industries as $key => $value) {
                         echo '<option' . ($formValues['industry'] === $value ? ' selected ' : '' ) . '>' . $value. '</option>';
                     }
@@ -445,6 +446,15 @@ function jg_table_gen($atts)
     }
     // Create tables which will be populated, only historical differs from the others hence the if statement
     if ($table_type == "Historical") {
+         echo '<table class="table table-striped table-hover sortable" align = "center">
+            <thead><tr>
+                <th>Year</th>
+                <th>Rank</th>
+                <th>% Change</th>
+                <th>Job Growth</th>
+                <th># of Jobs</th>
+                </tr></thead><tbody>';
+    } else {
         echo '<table class="table table-striped table-hover sortable" align = "center">
                 <thead><tr>
                     <th>State</th>
@@ -453,15 +463,6 @@ function jg_table_gen($atts)
                     <th>Job Growth</th>
                     <th># of Jobs</th>
                  </tr></thead><tbody>';
-    } else {
-        echo '<table class="table table-striped table-hover sortable" align = "center">
-            <thead><tr>
-                <th>Year</th>
-                <th>Rank</th>
-                <th>% Change</th>
-                <th>Job Growth</th>
-                <th># of Jobs</th>
-                </tr></thead><tbody>';
     }
 
     table_populate($rows);
