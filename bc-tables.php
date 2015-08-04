@@ -478,7 +478,7 @@ function bc_table_gen()
     ob_start();
 
     $form_controls =  isset($_POST['formcontrols']) ? false : true;
-    $state       = !isset($_POST['state']) ? "Summary" : $_POST['state'];
+    $state       = !isset($_POST['state']) ? "summary" : $_POST['state'];
 
     $states = array(
     "summary" => "Summary",
@@ -497,24 +497,24 @@ function bc_table_gen()
 
     $formValues = array(
         'state' => $states
-        );
+     );
 
 
-if($form_controls)
-{
-    ?>
-                        <form method="post" class="wbc-table">
-                        <div class="row">
-                            <div class="form-group col-xs-12 col-md-4">
-                                <?php populateDropDownControls('states', $states , $formValues); ?>
-                            </div>
-                            <div class="form-group col-xs-12 col-md-2">
-                                <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
-                            </div>
-                        </div>
-                    </form>
-    <?php
-}
+    if($form_controls)
+    {
+        ?>
+        <form method="post" class="wbc-table">
+            <div class="row">
+                <div class="form-group col-xs-12 col-md-4">
+                    <?php populateDropDownControls('states', $states , $formValues); ?>
+                </div>
+                <div class="form-group col-xs-12 col-md-2">
+                    <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
+                </div>
+            </div>
+        </form>
+        <?php
+    }
 
 
     //Grab years for table headers/captions
@@ -530,7 +530,7 @@ if($form_controls)
     $newdb = new wpdb($DB_USER, $DB_PASS, $DB_NAME, $DB_HOST);
 
     switch($state){
-        case "Summary":
+        case "summary":
             $rows = $newdb->get_results('SELECT States, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1 FROM wbc_deployment
                                             WHERE Organization = "Consensus" ORDER BY States ASC;');
 
@@ -553,7 +553,7 @@ if($form_controls)
                                             WHERE Organization = "Consensus" ORDER BY States ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year .'Forecasts Annual Percentage Change</caption>
+                  <caption> ' . $next_year .' Forecasts Annual Percentage Change</caption>
                   <thead>
                     <tr>
                     <th>&nbsp;</th>
@@ -566,7 +566,7 @@ if($form_controls)
                   </thead><tbody>';
 
             table_populate($rows);
-
+             break;
         case "nevada":
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_ggr, Q3A1,
                              Q4A1, Q5A1
@@ -610,8 +610,9 @@ if($form_controls)
                    </tr></thead><tbody>';
 
             table_populate($rows);
-
+             break;
         case "new mexico" :
+             break;
         case "oregon"     :
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1_mfg, Q3A1, Q4A1, Q5A1
                         FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -650,7 +651,7 @@ if($form_controls)
                    </tr></thead><tbody>';
 
             table_populate($rows);
-
+             break;
         case "montana":
             $rows = $newdb->get_results('SELECT Organization,Q1A1, Q3A1, Q4A1, Q5A1
                     FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -687,7 +688,7 @@ if($form_controls)
                    </tr></thead><tbody>';
 
             table_populate($rows);
-
+             break;
         default:
             $rows = $newdb->get_results('SELECT Organization, Q1A1, Q2A1, Q3A1, Q4A1, Q5A1
                     FROM wbc_deployment WHERE States = "' . $state . '" AND Organization != "Old Consensus" ORDER BY
@@ -726,6 +727,7 @@ if($form_controls)
                   </tr></thead><tbody>';
 
             table_populate($rows);
+            break;
         }
 
     $output = ob_get_clean();
@@ -928,8 +930,8 @@ add_shortcode('gpbc-tables', 'gpbc_table_gen');
 function populateDropDownControls($name, $dropdown_query, $formValues)
 {
     $dropdown_complete = '<select name="' . $name . '" id = "' . $name . '" class="form-control">';
-    foreach ($dropdown_query as $value) {
-        $dropdown_complete .= '<option value ="' . $value . '"' . ($formValues[$name] === $value ? ' selected ' : '' ) . '>' . $value . '</option>';
+    foreach ($dropdown_query as $key => $value) {
+        $dropdown_complete .= '<option value ="' . $key . '"' . ($formValues[$name] === $value ? ' selected ' : '' ) . '>' . $value . '</option>';
     }
     $dropdown_complete .= '</select>';
     echo $dropdown_complete;
