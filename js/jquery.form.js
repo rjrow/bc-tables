@@ -63,6 +63,7 @@
                 'action': 'echo_jg_table_gen',
                 'table_type': tableType,
                 'formcontrols': false,
+                'types': $('select[name=types]', tableForm).val(),
                 'area': $('select[name=area]', tableForm).val(),
                 'industry': $('select[name=industry]', tableForm).val(),
                 'month': $('select[name=month]', tableForm).val()

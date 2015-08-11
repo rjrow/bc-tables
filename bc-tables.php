@@ -127,7 +127,7 @@ function jg_table_gen($atts)
             "col_rank" => "rank_ytd",
             "col_pct_change" => "pct_change_ytd",
             "col_job_growth" => "job_growth_ytd",
-            "col_value" => "value_ytd",
+            "col_value" => "value_ytd_avg",
             "type_out" => "Year to date"
         ),
         "ann" => Array(
@@ -145,23 +145,24 @@ function jg_table_gen($atts)
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
     $industry   = !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
-    $type       = !isset($_POST['type']) ? "yoy" : $_POST['type'];
+    $type       = !isset($_POST['types']) ? "yoy" : $_POST['types'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
+
 
     $formValues = array(
         'month' => $month,
         'year' => $year,
         'industry' => $industry,
         'area' => $area,
-        'type' => $type,
+        'types' => $type,
         'msa_flag' => $msa_flag
     );
 
     $types =  array(
+       "yoy" => "Year over Year",
        "ytd" => "Year to Date",
        "ann" => "Annual",
-       "mom" => "Month over Month",
-       "yoy" => "Year over Year"
+       "mom" => "Month over Month"
     );
 
 
@@ -174,24 +175,23 @@ function jg_table_gen($atts)
     $col_value      = $colsQueries[$type]['col_value'];
     $type_out       = $colsQueries[$type]['type_out'];
 
-    // Update Month so that we are pulling in correct data about current month (query table, date_ref_table)
 
     $sectors    = $newdb->get_results('SELECT DISTINCT industry_name FROM state_rankings;', ARRAY_A);
     $sectors    = clean_up_array($sectors, 'industry_name');
 
     $months = array(
-        "0" => "January",
-        "1" => "February",
-        "2" => "March",
-        "3" => "April",
-        "4" => "May",
-        "5" => "June",
-        "6" => "July",
-        "7" => "August",
-        "8" => "September",
-        "9" => "October",
-        "10" => "November",
-        "11" => "December"
+        "1" => "January",
+        "2" => "February",
+        "3" => "March",
+        "4" => "April",
+        "5" => "May",
+        "6" => "June",
+        "7" => "July",
+        "8" => "August",
+        "9" => "September",
+        "10" => "October",
+        "11" => "November",
+        "12" => "December"
     );
 
 
@@ -240,7 +240,6 @@ function jg_table_gen($atts)
             break;
         case "ASR":
             $comma = ',';
-            $month = date("n", strtotime($month));
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -278,14 +277,12 @@ function jg_table_gen($atts)
             endif;
             break;
         case "RoMSAs":
-            $month = date("n", strtotime($month));
             #if msa == over || msa == all || msa == under :: do stuff
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
                             FORMAT(value,2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
                             AND Year = "' . $year . '"
                             AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
-
 
             if ($form_controls):
             ?>
@@ -312,13 +309,13 @@ function jg_table_gen($atts)
             endif;
             break;
         case "MSAover":
-            $month = date("n", strtotime($month));
             $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                                     FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                                     FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
                                     AND Year = "' . $year . '"
                                     AND Month = "' . $month . '";');
+
             if ($form_controls):
             ?>
                 <form method="post" class="bc-table" data-table-type="MSAover">
@@ -344,7 +341,6 @@ function jg_table_gen($atts)
             endif;
             break;
         case "MSAunder":
-            $month = date("n", strtotime($month));
             $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
@@ -380,14 +376,12 @@ function jg_table_gen($atts)
             $comma = ',';
             $table = !isset($_POST['table']) ? 'state_rankings' : $_POST['table'];
             $col_state_name = !isset($_POST['col_state_name']) ? 'state_name' : $_POST['col_state_name'];
-            $month = date("n", strtotime($month));
 
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
                             AND ' . $col_state_name . ' = "' . $area . '"
                             AND Month = "' . $month . '" LIMIT 10000 OFFSET 2;');
-
 
            if ($form_controls) {
                 ?>
@@ -508,7 +502,10 @@ function bc_table_gen()
         <form method="post" class="wbc-table">
             <div class="row">
                 <div class="form-group col-xs-12 col-md-4">
-                    <?php populateDropDownControls('states', $states , $formValues); ?>
+                    <?php populateDropDownControls('states', $states , $formValues, $key); ?>
+                </div>
+                <div class = "col-xs-12 col-md-3" id = "monthTitle">
+                    <?php echo date('F');?>
                 </div>
                 <div class="form-group col-xs-12 col-md-2">
                     <input name="submit" type="submit" class="btn btn-primary" value="Submit"/>
@@ -537,7 +534,7 @@ function bc_table_gen()
                                             WHERE Organization = "Consensus" ORDER BY States ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $curr_year .' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $curr_year .' : Annual Percentage Change</caption>
                   <thead>
                     <tr>
                     <th>&nbsp;</th>
@@ -555,7 +552,7 @@ function bc_table_gen()
                                             WHERE Organization = "Consensus" ORDER BY States ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year .' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $next_year .' : Annual Percentage Change</caption>
                   <thead>
                     <tr>
                     <th>&nbsp;</th>
@@ -579,7 +576,7 @@ function bc_table_gen()
                             Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $curr_year . ' : Annual Percentage Change</caption>
                   <thead>
                     <tr>
                       <th>&nbsp;</th>
@@ -602,7 +599,7 @@ function bc_table_gen()
                             Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $next_year . ' : Annual Percentage Change</caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th>Gross Gaming Revenue</th>
@@ -624,7 +621,7 @@ function bc_table_gen()
                             Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change<caption>
+                  <caption id = "wbcTitle"> ' . $curr_year . ' : Annual Percentage Change<caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th> Manufacturing Employment</th>
@@ -643,7 +640,7 @@ function bc_table_gen()
                             Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $next_year . ' : Annual Percentage Change</caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th> Manufacturing Employment</th>
@@ -663,7 +660,7 @@ function bc_table_gen()
                     Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $curr_year . ' : Annual Percentage Change</caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th>Wage & Salary Employment</th>
@@ -681,7 +678,7 @@ function bc_table_gen()
                     Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $next_year . ' : Annual Percentage Change</caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th>Wage & Salary Employment</th>
@@ -700,7 +697,7 @@ function bc_table_gen()
                     Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $curr_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $curr_year . ' : Annual Percentage Change</caption>
                   <thead><tr>
                   <th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
@@ -719,7 +716,7 @@ function bc_table_gen()
                             Organization ASC;');
 
             echo '<table class="table table-striped table-hover sortable">
-                  <caption> ' . $next_year . ' Forecasts Annual Percentage Change</caption>
+                  <caption id = "wbcTitle"> ' . $next_year . ' : Annual Percentage Change</caption>
                   <thead><tr><th>&nbsp;</th>
                   <th>Current $ Personal Income</th>
                   <th>Retail Sales</th>
@@ -739,6 +736,11 @@ function bc_table_gen()
 function gpbc_table_gen($atts)
 {
     ob_start();
+
+    //Grab years for table headers/captions
+    $curr_year = date("Y");
+    $next_year = $curr_year + 1;
+
 
     $table_type = $atts['table_type'];
 
@@ -760,10 +762,9 @@ function gpbc_table_gen($atts)
                                         FORMAT(Q6,1)  FROM gpbc_deployment
                                         WHERE  year = "2015";');
 
-        echo '<p align = "left"><b>First Quarter, 2015</b><p>';
 
         echo '<table class="table table-striped table-hover sortable">
-        <caption>' . $curr_year . ' Forecast Annual Percentage Change</c
+        <caption>' . $curr_year . ': Annual Percentage Change</c
         <thead><tr>
               <th>&nbsp;</th>
               <th>Population</th>
@@ -788,7 +789,7 @@ function gpbc_table_gen($atts)
                                         WHERE  year = "2016";');
 
         echo '<table class="table table-striped table-hover sortable">
-        <caption>' . $next_year . ' Forecast Annual Percentage Change</c
+        <caption>' . $next_year . ': Annual Percentage Change</c
         <thead><tr><th>&nbsp;</th>
               <th>Population</th>
               <th>Current $ Personal Income</th>
@@ -810,7 +811,7 @@ function gpbc_table_gen($atts)
                                                                 FORMAT(Q3,1) from gpbc_office where year = "2015"');
 
         echo '<table class= table table-striped table-hover sortable">
-            <caption>' . $curr_year . ' Office Forecast </caption>
+            <caption>' . $curr_year . ': Office Forecast</caption>
             <thead><tr>
                   <th>Organization</th>
                   <th>Construction</th>
@@ -825,7 +826,7 @@ function gpbc_table_gen($atts)
                                                                 FORMAT(Q3,1) from gpbc_office where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-            <caption>' . $next_year . ' Office Forecast </caption>
+            <caption>' . $next_year . ': Office Forecast</caption>
             <thead><tr>
                   <th>Organization</th>
                   <th>Construction</th>
@@ -845,7 +846,7 @@ function gpbc_table_gen($atts)
                                                                  FORMAT(Q4,1) from gpbc_residential where year = "2015"');
 
         echo '<table class="table table-striped table-hover sortable">
-                <caption>' . $curr_year . ' Residential Forecast </cap
+                <caption>' . $curr_year . ': Residential Forecast</cap
                 <thead><tr>
                       <th>Organization</th>
                       <th>Single-family permits</th>
@@ -861,7 +862,7 @@ function gpbc_table_gen($atts)
                                                                  FORMAT(Q4,1) from gpbc_residential where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-                <caption>' . $next_year . ' Residential Forecast </cap
+                <caption>' . $next_year . ': Residential Forecast</cap
                 <thead><tr>
                       <th>Organization</th>
                       <th>Single-family permits</th>
@@ -880,7 +881,7 @@ function gpbc_table_gen($atts)
                                                                 FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
 
         echo '<table class="table table-striped table-hover sortable">
-              <caption>' . $curr_year . ' Industrial Forecast </caption>
+              <caption>' . $curr_year . ': Industrial Forecast</caption>
               <thead><tr>
                   <th>Organization</th>
                   <th>Construction</th>
@@ -894,7 +895,7 @@ function gpbc_table_gen($atts)
                                                                 FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
 
         echo '<table class="table table-striped table-hover sortable">
-              <caption>' . $next_year . ' Industrial Forecast </caption>
+              <caption>' . $next_year . ': Industrial Forecast</caption>
               <thead><tr>
                   <th>Organization</th>
                   <th>Construction</th>
@@ -908,7 +909,7 @@ function gpbc_table_gen($atts)
     if ($table_type == "historical") {
         $rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
 
-        echo '<table class="table table-striped table-hover sortable">
+        echo '<table class="table table-striped table-hover">
               <thead><tr><th>&nbsp;</th>
               <th>Population (thousands)</th>
               <th>Personal Income ($ millions)</th>
@@ -968,12 +969,6 @@ add_action('wp_ajax_nopriv_echo_jg_table_gen', 'echo_jg_table_gen');
 
 add_action('wp_ajax_echo_bc_table_gen', 'echo_bc_table_gen');
 add_action('wp_ajax_nopriv_echo_bc_table_gen', 'echo_bc_table_gen');
-
-
-function bctables_css_enqueue()
-{
-
-}
 
 
 function bctables_js_enqueue()

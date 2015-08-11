@@ -5,3 +5,13 @@
 				text-align:center;
 				line-height:200%;
 			}
+
+
+#wbcTitle {
+				font-weight:bold;
+				font-family: Roboto,Helvetica Neue, Helvetica, Arial, sans-serif;
+				font-size: 20px;
+				text-align:center;
+}
+
+table th:first-child { min-width: 100%}
