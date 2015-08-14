@@ -151,6 +151,7 @@ function jg_table_gen($atts)
     $type       = !isset($_POST['types']) ? "yoy" : $_POST['types'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
+    // We dump a hidden variable containing the month, to allow jquery to set the default #month drop down
     echo '<div id="selected_month" style="display: none;">'.$month.'</div>';
 
     $formValues = array(
@@ -197,7 +198,6 @@ function jg_table_gen($atts)
         "11" => "November",
         "12" => "December"
     );
-
 
     $years      = $newdb->get_results('SELECT DISTINCT year FROM state_rankings;', ARRAY_A);
     $years      = clean_up_array($years, 'year');
@@ -812,7 +812,7 @@ function gpbc_table_gen($atts)
                                                                 FORMAT(Q2,1),
                                                                 FORMAT(Q3,1) from gpbc_office where year = "2015"');
 
-        echo '<table class= table table-striped table-hover sortable">
+        echo '<table class= "table table-striped table-hover sortable">
             <caption>' . $curr_year . ': Office Forecast</caption>
             <thead><tr>
                   <th>Organization</th>
