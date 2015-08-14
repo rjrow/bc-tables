@@ -141,13 +141,17 @@ function jg_table_gen($atts)
 
     // Setting variables to be initialized to default settings if they are not selected
 
-    $month      = !isset($_POST['month']) ? '1' : $_POST['month'];
+    $month = $newdb->get_results('select month from date_ref_t;', ARRAY_N);
+    $month = (string)$month[0][0];
+
+    $month      = !isset($_POST['month']) ? $month : $_POST['month'];
     $year       = !isset($_POST['year']) ? date("Y") : $_POST['year'];
     $industry   = !isset($_POST['industry']) ? 'Total Nonfarm' : $_POST['industry'];
     $area       = !isset($_POST['area']) ? 'Arizona' : $_POST['area'];
     $type       = !isset($_POST['types']) ? "yoy" : $_POST['types'];
     $msa_flag   = !isset($_POST['msa_flag']) ? "all" : $_POST['msa_flag'];
 
+    echo '<div id="selected_month" style="display: none;">'.$month.'</div>';
 
     $formValues = array(
         'month' => $month,
@@ -163,12 +167,6 @@ function jg_table_gen($atts)
        "ytd" => "Year to Date",
        "ann" => "12 mos. moving average",
        "mom" => "Month over Month"
-    );
-
-    $types_no_ytd = array(
-        "yoy" => "Year over Year",
-        "ann" => "12 mos. moving average",
-        "mom" => "Month over Month"
     );
 
 
@@ -207,8 +205,6 @@ function jg_table_gen($atts)
 
     switch ($table_type) {
         case "CSR":
-            $month = $newdb->get_results('select month from date_ref_t;', ARRAY_N);
-            $month = (string)$month[0][0];
             $comma = ',';
             $dateObj = DateTime::createFromFormat('!m', $month);
             $monthName = $dateObj->format('F');
@@ -263,7 +259,7 @@ function jg_table_gen($atts)
                 <form method="post" class="bc-table" data-table-type="ASR">
                     <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
-                            <?php populateDropDownControls('types', $types , $formValues, 'key'); ?>
+                            <?php populateDropDownControls('types', $types, $formValues, 'key'); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues, 'value'); ?>
@@ -295,7 +291,7 @@ function jg_table_gen($atts)
                 <form method="post" class="bc-table" data-table-type="RoMSAs">
                     <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
-                            <?php populateDropDownControls('types', $types , $formValues, 'key'); ?>
+                            <?php populateDropDownControls('types', $types, $formValues, 'key'); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues, 'value'); ?>
@@ -327,7 +323,7 @@ function jg_table_gen($atts)
                 <form method="post" class="bc-table" data-table-type="MSAover">
                     <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
-                            <?php populateDropDownControls('types', $types , $formValues, 'key'); ?>
+                            <?php populateDropDownControls('types', $types, $formValues, 'key'); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues, 'value'); ?>
@@ -359,7 +355,7 @@ function jg_table_gen($atts)
                 <form method="post" class="bc-table" data-table-type="MSAunder">
                     <div class="row">
                         <div class="form-group col-xs-12 col-md-3">
-                            <?php populateDropDownControls('types', $types , $formValues, 'key'); ?>
+                            <?php populateDropDownControls('types', $types, $formValues, 'key'); ?>
                         </div>
                         <div class="form-group col-xs-12 col-md-3">
                             <?php populateDropDownControls('industry', $sectors, $formValues, 'value'); ?>

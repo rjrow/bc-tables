@@ -4,6 +4,9 @@
 
         if ($('.bc-table')) {
 
+            var month = $("#selected_month").text();
+            $("#month").val(month);
+
             $('.bc-table select[name=area]').change(function() {
                 get_industry_list(this, true);
             });
