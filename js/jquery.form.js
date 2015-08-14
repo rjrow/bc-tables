@@ -1,9 +1,15 @@
 (function($) {
+
     $(document).ready(function() {
+
         if ($('.bc-table')) {
 
             $('.bc-table select[name=area]').change(function() {
                 get_industry_list(this, true);
+            });
+
+            $('.bc-table select[name=types]').change(function() {
+                check_ytd(this, true);
             });
 
             $('.bc-table').submit(function(event) {
@@ -19,6 +25,7 @@
                 get_wbc_table(this);
             });
         }
+
 
         function get_wbc_table(tableForm) {
             //loading
@@ -66,6 +73,7 @@
                 'types': $('select[name=types]', tableForm).val(),
                 'area': $('select[name=area]', tableForm).val(),
                 'industry': $('select[name=industry]', tableForm).val(),
+                'year' : $('select[name=year]',tableForm).val(),
                 'month': $('select[name=month]', tableForm).val()
             };
 
@@ -82,6 +90,21 @@
                 }
             });
         }
+
+
+
+        function check_ytd(select_option, type_is_set) {
+            var type = $(select_option).val();
+            if(type == "ytd")
+            {
+                $('#month').hide();
+            }else
+            {
+                $('#month').show();
+            }
+        }
+
+
 
         function get_industry_list(select_option, area_is_set) {
 

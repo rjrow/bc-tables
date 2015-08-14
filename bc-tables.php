@@ -161,8 +161,14 @@ function jg_table_gen($atts)
     $types =  array(
        "yoy" => "Year over Year",
        "ytd" => "Year to Date",
-       "ann" => "Annual",
+       "ann" => "12 mos. moving average",
        "mom" => "Month over Month"
+    );
+
+    $types_no_ytd = array(
+        "yoy" => "Year over Year",
+        "ann" => "12 mos. moving average",
+        "mom" => "Month over Month"
     );
 
 
