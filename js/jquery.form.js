@@ -1,52 +1,140 @@
-$(document).ready(function() {
-  if ($('.navbar-form')) {
+(function($) {
 
-    var area_is_set = false;
-    var area_set = document.getElementsByName('arealist')[0].value;
+  $(document).ready(function() {
 
-    if (area_set !== "") {
-      area_is_set = true;
-      console.log('area_is_set: ' + area_is_set);
-      get_industry_list(document.getElementsByName("arealist"), area_is_set);
+    if ($('.bc-table')) {
+
+      var month = $("#selected_month").text();
+      $("#month").val(month);
+
+      $('.bc-table select[name=area]').change(function() {
+        get_industry_list(this, true);
+      });
+
+      $('.bc-table select[name=types]').change(function() {
+        check_ytd(this, true);
+      });
+
+      $('.bc-table').submit(function(event) {
+        event.preventDefault();
+        var tableType = $(this).attr('data-table-type');
+        get_new_table(this, tableType);
+      });
     }
 
-    $('.navbar-form select[name=arealist]').change(function() {
-      get_industry_list(this, true);
-    });
-
-  }
-
-  function get_industry_list(select_option, area_is_set) {
-
-    var selected_area;
-    var area_set = $(select_option).val();
-    if(area_set.includes("MSAs")){
-      area_set = area_set.match(/[^[\]]+(?=])/g);
+    if ($('.wbc-table')) {
+      $('.wbc-table').submit(function(event) {
+        event.preventDefault();
+        get_wbc_table(this);
+      });
     }
-    area_set = String(area_set);
-    console.log('area_set: ' + area_set);
-    selected_area = area_set;
-    $('#select_industry').html('<option>Loading</option>');
 
-    $.ajax({
-      dataType: 'json',
-      url: ajaxurl,
-      data: {
-        'action': 'my_action',
-        'area': selected_area
-      },
-      success: function(data) {
-        var selectIndustry = $('#select_industry');
-        selectIndustry.html('');
-        $.each(data, function(index, value){
-          selectIndustry.append('<option>' + data[index] + '</option>');
-        });
-        $('#select_industry').show();
-      },
-      error: function(errorThrown) {
-        alert('error');
-        console.log(errorThrown);
+
+    function get_wbc_table(tableForm) {
+      //loading
+      $tableForm = $(tableForm);
+      $tableForm.siblings('table').each(function() {
+        $(this).hide().remove();
+      });
+      $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr></table>');
+
+
+      var formData = {
+        'action': 'echo_bc_table_gen',
+        'state': $('select[name=states]', tableForm).val(),
+        'formcontrols': false
+      };
+
+      console.log(formData);
+      $.ajax({
+        url: ajaxurl,
+        type: 'POST',
+        data: formData,
+        success: function(data) {
+          //console.log(data);
+          $('table.loading').replaceWith(data);
+        },
+        error: function(errorThrown) {
+          alert('error');
+          console.log(errorThrown);
+        }
+      });
+    }
+
+    function get_new_table(tableForm, tableType) {
+      //loading
+      $tableForm = $(tableForm);
+      $tableForm.siblings('table').each(function() {
+        $(this).hide().remove();
+      });
+      $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr></table>');
+
+      var formData = {
+        'action': 'echo_jg_table_gen',
+        'table_type': tableType,
+        'formcontrols': false,
+        'types': $('select[name=types]', tableForm).val(),
+        'area': $('select[name=area]', tableForm).val(),
+        'industry': $('select[name=industry]', tableForm).val(),
+        'year': $('select[name=year]', tableForm).val(),
+        'month': $('select[name=month]', tableForm).val()
+      };
+
+      $.ajax({
+        url: ajaxurl,
+        type: 'POST',
+        data: formData,
+        success: function(data) {
+          $('table.loading').replaceWith(data);
+        },
+        error: function(errorThrown) {
+          alert('error');
+          console.log(errorThrown);
+        }
+      });
+    }
+
+
+
+    function check_ytd(select_option, type_is_set) {
+      var type = $(select_option).val();
+      if (type == "ytd") {
+        $('#month').hide();
+      } else {
+        $('#month').show();
       }
-    });
-  }
-});
+    }
+
+
+
+    function get_industry_list(select_option, area_is_set) {
+
+      var area_set = $(select_option).val();
+      var selectIndustry = $('#select_industry');
+      selectIndustry.html('<option>Loading</option>');
+
+      console.log('area_set: ' + area_set);
+
+      $.ajax({
+        dataType: 'json',
+        url: ajaxurl,
+        data: {
+          'action': 'my_action',
+          'area': area_set,
+        },
+        success: function(data) {
+          var defaultArea = 'Total Nonfarm';
+          selectIndustry.html('');
+          $.each(data, function(index, value) {
+            selectIndustry.append('<option' + (data[index] === defaultArea ? ' selected ' : '') + '>' + data[index] + '</option>');
+          });
+          selectIndustry.show();
+        },
+        error: function(errorThrown) {
+          alert('error');
+          console.log(errorThrown);
+        }
+      });
+    }
+  });
+}(jQuery));
