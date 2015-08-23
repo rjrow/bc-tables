@@ -86,6 +86,7 @@
         data: formData,
         success: function(data) {
           $('table.loading').replaceWith(data);
+          $(".sortable").tablesorter(); 
         },
         error: function(errorThrown) {
           alert('error');
@@ -93,8 +94,6 @@
         }
       });
     }
-
-
 
     function check_ytd(select_option, type_is_set) {
       var type = $(select_option).val();
@@ -104,8 +103,6 @@
         $('#month').show();
       }
     }
-
-
 
     function get_industry_list(select_option, area_is_set) {
 
