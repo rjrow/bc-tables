@@ -15,6 +15,10 @@
                 check_ytd(this, true);
             });
 
+            $('.bc-table select[name=types]').ready(function() {
+                check_type(this, true);
+            });
+
             $('.bc-table').submit(function(event) {
                 event.preventDefault();
                 var tableType = $(this).attr('data-table-type');
@@ -28,6 +32,30 @@
                 get_wbc_table(this);
             });
         }
+
+
+        //Here we do not want the year to date showing for Additional State Rankings and Historical pages
+        function check_type(select_option, type_is_set) {
+            var tableType = $('form[class="bc-table"]').attr('data-table-type');
+            if(tableType == "ASR" || tableType == "Historical")
+            {
+                $('#types option[value="ytd"]').remove();
+            }
+        }
+
+        // Here we do not want the month dropdown available for the year to date type
+        function check_ytd(select_option, type_is_set) {
+            var type = $(select_option).val();
+            if(type == "ytd")
+            {
+                $('#month').hide();
+            }else
+            {
+                $('#month').show();
+            }
+        }
+
+
 
 
         function get_wbc_table(tableForm) {
@@ -96,16 +124,7 @@
 
 
 
-        function check_ytd(select_option, type_is_set) {
-            var type = $(select_option).val();
-            if(type == "ytd")
-            {
-                $('#month').hide();
-            }else
-            {
-                $('#month').show();
-            }
-        }
+
 
 
 

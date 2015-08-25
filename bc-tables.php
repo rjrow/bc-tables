@@ -13,10 +13,8 @@
 ?>
 <?php
 
-
 function get_industry_list_by_area($area = 'Total Nonfarm')
 {
-
     $area           = isset($_REQUEST['area']) ? $_REQUEST['area'] : $area ;
     $json_file      = file_get_contents(plugin_dir_path(__FILE__) . '/data/areas.json');
     $json_decoded   = json_decode($json_file, true);
@@ -31,12 +29,10 @@ function get_industry_list_by_area($area = 'Total Nonfarm')
     } else {
         return 'Value is null - goood';
     }
-
 }
 
 add_action('wp_ajax_my_action', 'get_industry_list_by_area');
 add_action('wp_ajax_nopriv_my_action', 'get_industry_list_by_area');
-
 
 function table_populate($rows)
 {
@@ -79,27 +75,27 @@ function jg_table_gen($atts)
     $tableQueries = Array(
         "RoMSAs" => Array(
             "table" => "msa_rankings",
-            "table_us" => "national_rankings_t",
+            "table_us" => "national_rankings",
             "col_state_name" => "state_name"
         ),
         "CSR" => Array(
             "table" => "state_rankings",
-            "table_us" => "national_rankings_t",
+            "table_us" => "national_rankings",
             "col_state_name" => "state_name"
         ),
         "ASR" => Array(
             "table" => "state_rankings",
-            "table_us" => "national_rankings_t",
+            "table_us" => "national_rankings",
             "col_state_name" => "state_name"
         ),
         "MSAover" => Array(
             "table" => "msa_rankings_over",
-            "table_us" => "national_rankings_t",
+            "table_us" => "national_rankings",
             "col_state_name" => "area_name"
         ),
         "MSAunder" => Array(
             "table" => "msa_rankings_under",
-            "table_us" => "national_rankings_t",
+            "table_us" => "national_rankings",
             "col_state_name" => "area_name"
         ),
         "Historical" => Array(
@@ -208,6 +204,7 @@ function jg_table_gen($atts)
             $comma = ',';
             $dateObj = DateTime::createFromFormat('!m', $month);
             $monthName = $dateObj->format('F');
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -242,6 +239,7 @@ function jg_table_gen($atts)
             break;
         case "ASR":
             $comma = ',';
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -280,11 +278,13 @@ function jg_table_gen($atts)
             break;
         case "RoMSAs":
             #if msa == over || msa == all || msa == under :: do stuff
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT ' . $col_state_name . ', ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2), FORMAT(' . $col_job_growth . ',2),
                             FORMAT(value,2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
                             AND Year = "' . $year . '"
                             AND Month = "' . $month . '" ORDER BY ' . $col_rank . ';');
+
 
             if ($form_controls):
             ?>
@@ -378,7 +378,7 @@ function jg_table_gen($atts)
             $comma = ',';
             $table = !isset($_POST['table']) ? 'state_rankings' : $_POST['table'];
             $col_state_name = !isset($_POST['col_state_name']) ? 'state_name' : $_POST['col_state_name'];
-
+            $month = sprintf("%02d", $month);
             $rows = $newdb->get_results('SELECT Year, ' . $col_rank . ', FORMAT(' . $col_pct_change . ',2),
                             FORMAT(' . $col_job_growth . ',2), FORMAT(' . $col_value . ',2)
                             FROM ' . $table . ' WHERE industry_name = "' . $industry . '"
@@ -762,7 +762,7 @@ function gpbc_table_gen($atts)
                                         FORMAT(Q4,1),
                                         FORMAT(Q5,1),
                                         FORMAT(Q6,1)  FROM gpbc_deployment
-                                        WHERE  year = "2015";');
+                                        WHERE  year = "'.$curr_year.'";');
 
 
         echo '<table class="table table-striped table-hover sortable">
@@ -788,7 +788,7 @@ function gpbc_table_gen($atts)
                                         FORMAT(Q4,1),
                                         FORMAT(Q5,1),
                                         FORMAT(Q6,1)  FROM gpbc_deployment
-                                        WHERE  year = "2016";');
+                                        WHERE  year = "'.$next_year.'";');
 
         echo '<table class="table table-striped table-hover sortable">
         <caption>' . $next_year . ': Annual Percentage Change</c
@@ -810,7 +810,7 @@ function gpbc_table_gen($atts)
     if ($table_type == "office") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
-                                                                FORMAT(Q3,1) from gpbc_office where year = "2015"');
+                                                                FORMAT(Q3,1) from gpbc_office where year = "'.$curr_year.'"');
 
         echo '<table class= "table table-striped table-hover sortable">
             <caption>' . $curr_year . ': Office Forecast</caption>
@@ -825,7 +825,7 @@ function gpbc_table_gen($atts)
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
-                                                                FORMAT(Q3,1) from gpbc_office where year = "2016"');
+                                                                FORMAT(Q3,1) from gpbc_office where year = "'.$next_year.'"');
 
         echo '<table class="table table-striped table-hover sortable">
             <caption>' . $next_year . ': Office Forecast</caption>
@@ -845,7 +845,7 @@ function gpbc_table_gen($atts)
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
                                                                  FORMAT(Q3,1),
-                                                                 FORMAT(Q4,1) from gpbc_residential where year = "2015"');
+                                                                 FORMAT(Q4,1) from gpbc_residential where year = "'.$curr_year.'"');
 
         echo '<table class="table table-striped table-hover sortable">
                 <caption>' . $curr_year . ': Residential Forecast</cap
@@ -861,7 +861,7 @@ function gpbc_table_gen($atts)
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
                                                                  FORMAT(Q3,1),
-                                                                 FORMAT(Q4,1) from gpbc_residential where year = "2016"');
+                                                                 FORMAT(Q4,1) from gpbc_residential where year = "'.$next_year.'"');
 
         echo '<table class="table table-striped table-hover sortable">
                 <caption>' . $next_year . ': Residential Forecast</cap
@@ -880,7 +880,7 @@ function gpbc_table_gen($atts)
     if ($table_type == "industrial") {
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
-                                                                FORMAT(Q3,1) from gpbc_industrial where year = "2015"');
+                                                                FORMAT(Q3,1) from gpbc_industrial where year = "'.$curr_year.'"');
 
         echo '<table class="table table-striped table-hover sortable">
               <caption>' . $curr_year . ': Industrial Forecast</caption>
@@ -894,7 +894,7 @@ function gpbc_table_gen($atts)
 
         $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
                                                                 FORMAT(Q2,1),
-                                                                FORMAT(Q3,1) from gpbc_industrial where year = "2016"');
+                                                                FORMAT(Q3,1) from gpbc_industrial where year = "'.$next_year.'"');
 
         echo '<table class="table table-striped table-hover sortable">
               <caption>' . $next_year . ': Industrial Forecast</caption>
@@ -907,6 +907,35 @@ function gpbc_table_gen($atts)
         table_populate($rows);
     }
 
+    if ($table_type == "retail") {
+        $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_retail where year = "'.$curr_year.'"');
+
+        echo '<table class="table table-striped table-hover sortable">
+              <caption>' . $curr_year . ': Retail Forecast</caption>
+              <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
+        table_populate($rows);
+
+        $rows = $newdb->get_results('SELECT organization, FORMAT(Q1,1),
+                                                                FORMAT(Q2,1),
+                                                                FORMAT(Q3,1) from gpbc_retail where year = "'.$next_year.'"');
+
+        echo '<table class="table table-striped table-hover sortable">
+              <caption>' . $next_year . ': Retail Forecast</caption>
+              <thead><tr>
+                  <th>Organization</th>
+                  <th>Construction</th>
+                  <th>Vacancy (Year End %)</th>
+                  <th>Absorpotion</th>
+                      </tr></thead><tbody>';
+        table_populate($rows);
+    }
 
     if ($table_type == "historical") {
         $rows = $newdb->get_results('SELECT row_type, Q1, Q2, Q3, Q4, Q5, Q6, Q7 FROM gpbc_historical');
