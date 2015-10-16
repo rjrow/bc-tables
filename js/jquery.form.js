@@ -3,23 +3,57 @@
   $(document).ready(function() {
 
     if ($('.bc-table')) {
-
       var month = $("#selected_month").text();
       $("#month").val(month);
 
-      $('.bc-table select[name=area]').change(function() {
+      $(document).on('change', '.bc-table select[name=area]', function(event) {
         get_industry_list(this, true);
       });
 
-      $('.bc-table select[name=types]').change(function() {
+      $(document).on('change', '.bc-table select[name=types]', function(event) {
         check_ytd(this, true);
       });
 
-      $('.bc-table').submit(function(event) {
+      $(document).on("submit", ".bc-table", function(event) {
         event.preventDefault();
         var tableType = $(this).attr('data-table-type');
         get_new_table(this, tableType);
       });
+    }
+    var display = document.querySelector('#time'),
+           timer = new CountDownTimer(34);
+
+    timer.onTick(format).start();
+
+    function format(minutes, seconds) {
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      display.textContent = minutes + ':' + seconds;
+    }
+
+    function init_jg_table(tableType) {
+      console.log('jelp');
+      var formData = {
+        'action': 'echo_jg_table_gen',
+        'table_type': tableType,
+      };
+      $.ajax({
+        url: ajaxurl,
+        type: 'POST',
+        data: formData,
+        success: function(data) {
+          $('table.loading').replaceWith(data);
+          $(".sortable").tablesorter();
+        },
+        error: function(errorThrown) {
+          alert('error');
+          console.log(errorThrown);
+        }
+      });
+    }
+    if ($('.table.loading')) {
+      var tableType = $('.table.loading').attr('data-table-type');
+      init_jg_table(tableType);
     }
 
     if ($('.wbc-table')) {
@@ -29,7 +63,6 @@
       });
     }
 
-
     function get_wbc_table(tableForm) {
       //loading
       $tableForm = $(tableForm);
@@ -37,7 +70,6 @@
         $(this).hide().remove();
       });
       $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr></table>');
-
 
       var formData = {
         'action': 'echo_bc_table_gen',
@@ -67,7 +99,11 @@
       $tableForm.siblings('table').each(function() {
         $(this).hide().remove();
       });
-      $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i></td></tr></table>');
+      $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i><p>Please wait <span id="time"></span> seconds for data to load</p></td></tr></table>');
+      var display = document.querySelector('#time'),
+           timer = new CountDownTimer(0.5);
+
+      timer.onTick(format).start();
 
       var formData = {
         'action': 'echo_jg_table_gen',
@@ -86,7 +122,7 @@
         data: formData,
         success: function(data) {
           $('table.loading').replaceWith(data);
-          $(".sortable").tablesorter(); 
+          $(".sortable").tablesorter();
         },
         error: function(errorThrown) {
           alert('error');

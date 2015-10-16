@@ -961,7 +961,7 @@ function gpbc_table_gen($atts)
     return $output;
 }
 
-add_shortcode('jg-tables', 'jg_table_gen');
+add_shortcode('jg-tables', 'shortcode_jg_table_gen');
 add_shortcode('bc-tables', 'bc_table_gen');
 add_shortcode('gpbc-tables', 'gpbc_table_gen');
 
@@ -975,10 +975,19 @@ function populateDropDownControls($name, $dropdown_query, $formValues, $dropType
     $dropdown_complete .= '</select>';
     echo $dropdown_complete;
 }
-
+function shortcode_jg_table_gen($atts)
+{
+    $table_type = $atts['table_type'];
+    ob_start();
+    echo '<table class="table loading table-stripped" data-table-type="'. $table_type . '"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i>
+    <p>Please wait <span id="time"></span> seconds for data to load</p></td></tr></table>';
+    $output = ob_get_clean();
+    return $output;
+}
 
 function echo_jg_table_gen()
 {
+    echo $_POST['table_type'];
     $custom_args = array(
         'table_type' => $_POST['table_type'],
         'area' => $_POST['area'],
@@ -1016,7 +1025,10 @@ function bctables_js_enqueue()
     wp_register_script('bctables-js', plugin_dir_url(__FILE__) . 'js/jquery.form.js', array(
         'jquery'
     ));
+    wp_register_script('countdowntimer-js', plugin_dir_url(__FILE__) . 'js/countdowntimer.js');
+
     wp_enqueue_script('bctables-js');
+    wp_enqueue_script('countdowntimer-js');
     wp_enqueue_style('fontcss');
 }
 
