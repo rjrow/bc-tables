@@ -164,7 +164,6 @@
           selectIndustry.show();
         },
         error: function(errorThrown) {
-          alert('error');
           console.log(errorThrown);
         }
       });
