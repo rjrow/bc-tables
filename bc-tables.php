@@ -980,7 +980,7 @@ function shortcode_jg_table_gen($atts)
     $table_type = $atts['table_type'];
     ob_start();
     echo '<table class="table loading table-stripped" data-table-type="'. $table_type . '"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i>
-    <p>Please wait <span id="time"></span> seconds for data to load</p></td></tr></table>';
+    <p id="loading-message">Please wait <span id="time"></span> seconds for data to load</p></td></tr></table>';
     $output = ob_get_clean();
     return $output;
 }

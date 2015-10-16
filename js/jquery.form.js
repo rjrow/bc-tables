@@ -21,9 +21,11 @@
       });
     }
     var display = document.querySelector('#time'),
-           timer = new CountDownTimer(34);
+          timer = new CountDownTimer(34);
+    var message = document.querySelector('#loading-message');
+          
 
-    timer.onTick(format).start();
+    timer.onTick(format).onTick(finished).start();
 
     function format(minutes, seconds) {
       minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -31,8 +33,13 @@
       display.textContent = minutes + ':' + seconds;
     }
 
+    function finished() {
+        if (this.expired()) {
+            message.textContent = 'Just a bit longer.';
+        }
+    }
+
     function init_jg_table(tableType) {
-      console.log('jelp');
       var formData = {
         'action': 'echo_jg_table_gen',
         'table_type': tableType,
@@ -46,7 +53,6 @@
           $(".sortable").tablesorter();
         },
         error: function(errorThrown) {
-          alert('error');
           console.log(errorThrown);
         }
       });
@@ -87,7 +93,6 @@
           $('table.loading').replaceWith(data);
         },
         error: function(errorThrown) {
-          alert('error');
           console.log(errorThrown);
         }
       });
@@ -125,7 +130,6 @@
           $(".sortable").tablesorter();
         },
         error: function(errorThrown) {
-          alert('error');
           console.log(errorThrown);
         }
       });
