@@ -3,6 +3,12 @@
   $(document).ready(function() {
 
     if ($('.bc-table')) {
+      var display = document.querySelector('#time'),
+            timer = new CountDownTimer(34);
+      var message = document.querySelector('#loading-message');
+
+
+      timer.onTick(format).onTick(finished).start();
       var month = $("#selected_month").text();
       $("#month").val(month);
 
@@ -20,12 +26,6 @@
         get_new_table(this, tableType);
       });
     }
-    var display = document.querySelector('#time'),
-          timer = new CountDownTimer(34);
-    var message = document.querySelector('#loading-message');
-          
-
-    timer.onTick(format).onTick(finished).start();
 
     function format(minutes, seconds) {
       minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -34,9 +34,9 @@
     }
 
     function finished() {
-        if (this.expired()) {
-            message.textContent = 'Just a bit longer.';
-        }
+      if (this.expired()) {
+        message.textContent = 'Just a bit longer.';
+      }
     }
 
     function init_jg_table(tableType) {
@@ -106,7 +106,7 @@
       });
       $tableForm.after('<table class="table loading table-stripped"><tr><td style="text-align: center; padding: 20px;"><i class="fa fa-2x fa-refresh fa-spin"></i><p>Please wait <span id="time"></span> seconds for data to load</p></td></tr></table>');
       var display = document.querySelector('#time'),
-           timer = new CountDownTimer(0.5);
+        timer = new CountDownTimer(0.5);
 
       timer.onTick(format).start();
 
