@@ -30,11 +30,13 @@
     function format(minutes, seconds) {
       minutes = minutes < 10 ? "0" + minutes : minutes;
       seconds = seconds < 10 ? "0" + seconds : seconds;
-      display.textContent = minutes + ':' + seconds;
+      if(display){
+        display.textContent = minutes + ':' + seconds;
+      }
     }
 
     function finished() {
-      if (this.expired()) {
+      if (this.expired() && message) {
         message.textContent = 'Just a bit longer.';
       }
     }
